@@ -1,0 +1,367 @@
+{
+  "generated_utc": "2026-10-27 11:03 UTC",
+  "period": {
+    "from": "2026-10-25",
+    "to": "2026-10-25"
+  },
+  "complex": {
+    "verdict": "FLARING_NO_EXPORT",
+    "ru": "горит, но не вывозит",
+    "status": "warning",
+    "note": "тепло есть, отгрузок СПГ нет. Возможные причины: накопление в хранилище, факел пусконаладки или продувки перед ремонтом, либо экспорт заблокирован",
+    "signals": {
+      "thermal": true,
+      "hot_trains": 5,
+      "frp_sum": 230.1,
+      "lng_loadings": 0,
+      "liquid_loadings": 0,
+      "sulphur_loadings": 0,
+      "drycargo_calls": 0,
+      "project_cargo_calls": 0,
+      "dredgers": 0,
+      "tugs": 0,
+      "export_pct_of_norm": 0.0,
+      "norm_cargoes": 24.0
+    },
+    "caveats": []
+  },
+  "capacity": {
+    "producing_mtpa": 64.0,
+    "down_mtpa": 12.8,
+    "utilisation_pct": 83.3
+  },
+  "trains": [
+    {
+      "name": "P-W1",
+      "venture": "запад (проверить)",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "REBUILDING",
+      "confidence": "low",
+      "evidence": [
+        "изменено 49% площади без следов пожара"
+      ],
+      "hot_pixels": 0,
+      "dnbr": 0.076,
+      "changed": 0.493,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "name": "P-N1",
+      "venture": "QE LNG North",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "PRODUCING",
+      "confidence": "low",
+      "evidence": [
+        "тепловых точек VIIRS: 11",
+        "ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением"
+      ],
+      "hot_pixels": 0,
+      "dnbr": 0.069,
+      "changed": 0.281,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "name": "P-N2",
+      "venture": "QE LNG North",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "PRODUCING",
+      "confidence": "low",
+      "evidence": [
+        "горячих пикселей SWIR: 664",
+        "тепловых точек VIIRS: 15",
+        "ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением"
+      ],
+      "hot_pixels": 664,
+      "dnbr": 0.061,
+      "changed": 0.179,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "name": "P-M1",
+      "venture": "центр комплекса",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "PRODUCING",
+      "confidence": "low",
+      "evidence": [
+        "горячих пикселей SWIR: 149",
+        "тепловых точек VIIRS: 26",
+        "ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением"
+      ],
+      "hot_pixels": 149,
+      "dnbr": 0.052,
+      "changed": 0.169,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "name": "P-S1",
+      "venture": "QE LNG South",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "PRODUCING",
+      "confidence": "low",
+      "evidence": [
+        "горячих пикселей SWIR: 344",
+        "тепловых точек VIIRS: 10",
+        "ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением"
+      ],
+      "hot_pixels": 344,
+      "dnbr": 0.044,
+      "changed": 0.174,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "name": "P-S2",
+      "venture": "QE LNG South",
+      "mtpa": 12.8,
+      "known_status": "",
+      "status": "PRODUCING",
+      "confidence": "low",
+      "evidence": [
+        "горячих пикселей SWIR: 662",
+        "тепловых точек VIIRS: 17",
+        "ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением"
+      ],
+      "hot_pixels": 662,
+      "dnbr": 0.026,
+      "changed": 0.11,
+      "snapshot_date": "2026-10-25"
+    }
+  ],
+  "berths": [
+    {
+      "berth": "JET-1",
+      "kind": "lng",
+      "venture": "северный мол",
+      "vessel_px": 4292,
+      "vessel_frac": 0.262,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "JET-2",
+      "kind": "lng",
+      "venture": "северный мол",
+      "vessel_px": 2431,
+      "vessel_frac": 0.148,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "JET-3",
+      "kind": "lng",
+      "venture": "северный мол",
+      "vessel_px": 1928,
+      "vessel_frac": 0.118,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "JET-W",
+      "kind": "liquid",
+      "venture": "запад мола",
+      "vessel_px": 5419,
+      "vessel_frac": 0.331,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "BAS-E",
+      "kind": "liquid",
+      "venture": "внутренний бассейн",
+      "vessel_px": 2607,
+      "vessel_frac": 0.159,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "BAS-S",
+      "kind": "liquid",
+      "venture": "внутренний бассейн",
+      "vessel_px": 407,
+      "vessel_frac": 0.025,
+      "occupied": false,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "PIER-NE",
+      "kind": "liquid",
+      "venture": "северо-восточный пирс",
+      "vessel_px": 1043,
+      "vessel_frac": 0.064,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "PIER-S",
+      "kind": "liquid",
+      "venture": "южный пирс",
+      "vessel_px": 2504,
+      "vessel_frac": 0.153,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "MOLE-E",
+      "kind": "liquid",
+      "venture": "восточный мол (проверить)",
+      "vessel_px": 411,
+      "vessel_frac": 0.025,
+      "occupied": false,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "QUAY-E",
+      "kind": "drycargo",
+      "venture": "construction",
+      "vessel_px": 4845,
+      "vessel_frac": 0.296,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "berth": "QUAY-NE",
+      "kind": "drycargo",
+      "venture": "construction",
+      "vessel_px": 1038,
+      "vessel_frac": 0.063,
+      "occupied": true,
+      "snapshot_date": "2026-10-25"
+    }
+  ],
+  "sites": [
+    {
+      "site": "Tank farm",
+      "note": "резервуарный парк — контроль работы алгоритма",
+      "changed": 0.333,
+      "hot_pixels": 6,
+      "construction_signal": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "site": "Tank farm N",
+      "note": "северный резервуарный парк — контроль",
+      "changed": 0.397,
+      "hot_pixels": 215,
+      "construction_signal": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "site": "Laydown yard",
+      "note": "площадка складирования модулей — индикатор стройки",
+      "changed": 0.24,
+      "hot_pixels": 0,
+      "construction_signal": true,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "site": "Pearl GTL",
+      "note": "предположительно завод GTL, требует проверки",
+      "changed": 0.177,
+      "hot_pixels": 408,
+      "construction_signal": false,
+      "snapshot_date": "2026-10-25"
+    },
+    {
+      "site": "Barzan",
+      "note": "предположительно Barzan, требует проверки",
+      "changed": 0.259,
+      "hot_pixels": 107,
+      "construction_signal": true,
+      "snapshot_date": "2026-10-25"
+    }
+  ],
+  "firms_trend": [
+    [
+      "2026-10-25",
+      184.1
+    ],
+    [
+      "2026-10-26",
+      46.0
+    ]
+  ],
+  "shipping": {
+    "lng_loadings": 0,
+    "liquid_loadings": 0,
+    "sulphur_loadings": 0,
+    "drycargo_calls": 0,
+    "project_cargo_calls": 0,
+    "export_pct_of_norm": 0.0,
+    "norm_cargoes": 24.0,
+    "dredgers": 0,
+    "tugs": 0
+  },
+  "areas": {
+    "ras-laffan": {
+      "key": "ras-laffan",
+      "title": "Ras Laffan",
+      "note": "крупнейший в мире комплекс сжижения газа",
+      "bbox": [
+        51.48,
+        25.86,
+        51.665,
+        25.97
+      ],
+      "date": "2026-10-25",
+      "age_days": 2,
+      "cloud": 0.1,
+      "prev_date": "2026-10-20",
+      "count": 11,
+      "large_count": 5,
+      "px_size_m": 5.9,
+      "reliable_min_len_m": 24,
+      "image": "data\\chips\\area_ras-laffan_2026-10-25_web.jpg",
+      "error": null,
+      "warning": null
+    },
+    "hormuz": {
+      "key": "hormuz",
+      "title": "Ормузский пролив",
+      "note": "через него идёт весь катарский СПГ",
+      "bbox": [
+        56.2,
+        26.35,
+        56.8,
+        26.95
+      ],
+      "date": "2026-10-26",
+      "age_days": 1,
+      "cloud": 14.9,
+      "prev_date": "2026-10-24",
+      "count": 18,
+      "large_count": 18,
+      "px_size_m": 32.4,
+      "reliable_min_len_m": 130,
+      "image": "data\\chips\\area_hormuz_2026-10-26_web.jpg",
+      "error": null,
+      "warning": null
+    },
+    "bab-el-mandeb": {
+      "key": "bab-el-mandeb",
+      "title": "Баб-эль-Мандеб",
+      "note": "путь в Европу через Суэцкий канал",
+      "bbox": [
+        43.1,
+        12.35,
+        43.7,
+        12.95
+      ],
+      "date": "2026-10-21",
+      "age_days": 6,
+      "cloud": 0.1,
+      "prev_date": "2026-10-18",
+      "count": 9,
+      "large_count": 9,
+      "px_size_m": 32.4,
+      "reliable_min_len_m": 130,
+      "image": "data\\chips\\area_bab-el-mandeb_2026-10-21_web.jpg",
+      "error": null,
+      "warning": null
+    }
+  },
+  "disclaimer": "Автоматические выводы по открытым данным. Привязка судна к конкретной линии сжижения физически невозможна."
+}

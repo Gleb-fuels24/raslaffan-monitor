@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ras Laffan LNG — монитор</title>
+<meta name="description" content="Статус линий сжижения Ras Laffan по снимкам
+Sentinel-2, тепловым данным VIIRS и трекингу судов AIS. Fuels24 Inc.">
+<meta property="og:title" content="Ras Laffan LNG — монитор состояния">
+<meta property="og:description" content="Какие линии работают, какие
+восстанавливают, сколько СПГ реально вывозят. По открытым данным.">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  color-scheme:light;
+  --plane:#f9f9f7; --surface:#fcfcfb;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --status-good:#0ca30c; --status-warning:#fab219;
+  --status-serious:#ec835a; --status-critical:#d03b3b;
+  --seq-400:#3987e5; --seq-450:#2a78d6; --seq-250:#86b6ef;
+  --accent:#2a78d6;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --plane:#0d0d0d; --surface:#1a1a19;
+    --ink:#f0efec; --ink-2:#c3c2b7; --ink-muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --seq-400:#3987e5; --seq-450:#2a78d6; --seq-250:#184f95;
+    --accent:#3987e5;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --plane:#0d0d0d; --surface:#1a1a19;
+  --ink:#f0efec; --ink-2:#c3c2b7; --ink-muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --seq-400:#3987e5; --seq-450:#2a78d6; --seq-250:#184f95;
+  --accent:#3987e5;
+}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1040px; margin:0 auto; padding:0 16px 72px}
+header{padding:28px 0 8px}
+.brand{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.brand b{font-size:15px; letter-spacing:.02em}
+.brand span{color:var(--ink-muted); font-size:13px}
+h1{font-size:clamp(24px,4.2vw,36px); line-height:1.15; margin:18px 0 6px; font-weight:650}
+.sub{color:var(--ink-2); margin:0 0 4px; max-width:60ch}
+.stamp{color:var(--ink-muted); font-size:13px; margin-top:10px}
+
+.card{
+  background:var(--surface); border:1px solid var(--ring);
+  border-radius:12px; padding:20px; margin:16px 0;
+}
+h2{font-size:17px; margin:0 0 4px; font-weight:620}
+.hint{color:var(--ink-muted); font-size:13px; margin:0 0 16px; max-width:72ch}
+
+/* шапка-вердикт */
+.verdict{display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start}
+.hero{flex:1 1 220px; min-width:200px}
+.hero .n{font-size:clamp(40px,8vw,60px); line-height:1; font-weight:680; letter-spacing:-.02em}
+.hero .n small{font-size:.42em; font-weight:500; color:var(--ink-2); margin-left:4px}
+.hero .lbl{color:var(--ink-2); font-size:13px; margin-top:6px}
+.chip{
+  display:inline-flex; align-items:center; gap:8px; padding:7px 13px;
+  border-radius:999px; border:1px solid var(--ring);
+  font-weight:600; font-size:14px; background:var(--plane);
+}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.vnote{flex:2 1 340px; color:var(--ink-2); font-size:14px}
+.caveat{
+  margin-top:12px; padding:11px 13px; border-radius:8px;
+  border-left:3px solid var(--status-warning); background:var(--plane);
+  color:var(--ink-2); font-size:13px;
+}
+
+/* матрица сигналов */
+.sig{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.sigbox{border:1px solid var(--ring); border-radius:9px; padding:13px; background:var(--plane)}
+.sigbox .k{color:var(--ink-muted); font-size:12px; text-transform:uppercase; letter-spacing:.05em}
+.sigbox .v{font-size:25px; font-weight:650; margin-top:5px; font-variant-numeric:tabular-nums}
+.sigbox .d{color:var(--ink-2); font-size:12.5px; margin-top:3px}
+
+table{width:100%; border-collapse:collapse; font-size:14px}
+th{
+  text-align:left; font-weight:600; color:var(--ink-2); font-size:12px;
+  text-transform:uppercase; letter-spacing:.05em;
+  padding:0 16px 8px 0; border-bottom:1px solid var(--grid);
+}
+td{padding:10px 16px 10px 0; border-bottom:1px solid var(--grid); vertical-align:top}
+/* Числовые колонки выравниваются вправо, но отступ справа сохраняется:
+   без него число слипается с соседней колонкой. */
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+td:last-child,th:last-child{padding-right:0}
+tr:last-child td{border-bottom:none}
+.st{display:inline-flex; align-items:center; gap:7px; font-weight:560; white-space:nowrap}
+.st .ic{font-size:11px; line-height:1}
+.ev{color:var(--ink-muted); font-size:12.5px; margin-top:4px}
+.conf{font-size:12px; color:var(--ink-muted); white-space:nowrap}
+
+/* закрытая часть */
+.locked td{color:var(--ink-muted)}
+.locked .mask{letter-spacing:.18em; user-select:none}
+.gate{
+  margin-top:14px; padding:18px; border-radius:10px; text-align:center;
+  border:1px dashed var(--axis); background:var(--plane);
+}
+.gate b{display:block; font-size:15px; margin-bottom:4px}
+.gate p{color:var(--ink-2); font-size:13.5px; margin:0 auto 14px; max-width:46ch}
+
+/* график */
+.chart{display:flex; align-items:flex-end; gap:2px; height:150px; margin-top:6px}
+.bar{
+  flex:1 1 0; min-width:6px; background:var(--seq-450);
+  border-radius:4px 4px 0 0; position:relative; cursor:default;
+  transition:background .12s;
+}
+.bar:hover{background:var(--seq-400)}
+.bar:hover::after{
+  content:attr(data-tip); position:absolute; bottom:calc(100% + 7px); left:50%;
+  transform:translateX(-50%); white-space:nowrap; z-index:5;
+  background:var(--ink); color:var(--surface); font-size:12px;
+  padding:5px 9px; border-radius:6px; font-variant-numeric:tabular-nums;
+}
+.axis{
+  display:flex; justify-content:space-between; color:var(--ink-muted);
+  font-size:11.5px; margin-top:7px; border-top:1px solid var(--axis); padding-top:6px;
+}
+
+/* форма */
+form{display:flex; gap:8px; flex-wrap:wrap; justify-content:center}
+input[type=email]{
+  flex:1 1 230px; max-width:320px; padding:11px 13px; font:inherit;
+  border:1px solid var(--axis); border-radius:8px;
+  background:var(--surface); color:var(--ink);
+}
+input[type=email]:focus{outline:2px solid var(--accent); outline-offset:1px}
+.btn{
+  padding:11px 20px; font:inherit; font-weight:600; cursor:pointer;
+  border:none; border-radius:8px; background:var(--accent); color:#fff;
+  text-decoration:none; display:inline-block;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent)}
+
+/* карусель снимков */
+.car{position:relative}
+.car-track{display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
+  gap:14px; scroll-behavior:smooth; padding-bottom:4px;
+  scrollbar-width:thin}
+.car-slide{flex:0 0 100%; scroll-snap-align:start; min-width:0}
+.car-slide img{width:100%; height:auto; display:block; border-radius:9px;
+  border:1px solid var(--ring); background:var(--plane)}
+.car-noimg{width:100%; aspect-ratio:3/2; border-radius:9px;
+  border:1px dashed var(--axis); background:var(--plane);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ink-muted); font-size:13.5px; text-align:center; padding:20px}
+.car-cap{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline;
+  margin-top:10px}
+.car-cap b{font-size:15px}
+.car-cap .d{color:var(--ink-muted); font-size:13px;
+  font-variant-numeric:tabular-nums}
+.car-stat{display:flex; gap:18px; flex-wrap:wrap; margin-top:8px}
+.car-stat div{font-size:13px; color:var(--ink-2)}
+.car-stat b{font-size:19px; color:var(--ink); display:block;
+  font-variant-numeric:tabular-nums}
+.car-nav{display:flex; gap:8px; align-items:center; margin-top:14px;
+  flex-wrap:wrap}
+.car-btn{border:1px solid var(--axis); background:var(--surface);
+  color:var(--ink); border-radius:8px; padding:7px 14px; cursor:pointer;
+  font:inherit; font-size:13px}
+.car-btn:hover{border-color:var(--accent); color:var(--accent)}
+.car-btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.car-dots{display:flex; gap:6px; margin-left:auto}
+.car-dot{width:8px; height:8px; border-radius:50%; border:none; padding:0;
+  background:var(--axis); cursor:pointer}
+.car-dot[aria-current="true"]{background:var(--accent)}
+
+.meth{columns:2 260px; column-gap:28px; font-size:13.5px; color:var(--ink-2)}
+.meth p{margin:0 0 11px; break-inside:avoid}
+.meth b{color:var(--ink)}
+footer{
+  margin-top:30px; padding-top:18px; border-top:1px solid var(--grid);
+  color:var(--ink-muted); font-size:13px;
+}
+footer a{color:var(--accent)}
+.toggle{
+  position:absolute; top:16px; right:16px; background:var(--surface);
+  border:1px solid var(--ring); color:var(--ink-2); border-radius:8px;
+  padding:7px 11px; font:inherit; font-size:13px; cursor:pointer;
+}
+@media (max-width:560px){
+  .meth{columns:1}
+  .hide-s{display:none}
+}
+</style>
+</head>
+<body>
+<button class="toggle" id="tg" type="button">Тёмная тема</button>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <b>Fuels24 Inc</b>
+    <span>Asset intelligence по открытым данным</span>
+  </div>
+  <h1>Ras Laffan LNG: что работает, что восстанавливают</h1>
+  <p class="sub">Крупнейший в мире комплекс сжижения газа после удара
+  в марте 2026. Состояние каждой линии — по трём независимым открытым
+  источникам, без инсайда и без подписки на платные терминалы.</p>
+  <p class="stamp">Обновлено 2026-10-27 09:15 UTC &middot; снимок от 2026-10-25 (2 дн. назад), облачность 0.1%</p>
+</header>
+
+<section class="card">
+  <div class="verdict">
+    <div class="hero">
+      <div class="n">66.7<small>%</small></div>
+      <div class="lbl">мощности в работе<br>
+        51.2 из
+        76.8 млн т/год</div>
+    </div>
+    <div class="vnote">
+      <span class="chip"><span class="dot" style="background:var(--status-good)"></span>производит и вывозит</span>
+      <p style="margin:12px 0 0">тепловая активность подтверждена отгрузками СПГ — два независимых источника сходятся</p>
+      <div class="caveat">В районе порта земснарядов: 1. Дноуглубление ведут под стройку или под приём более крупных судов</div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Три сигнала, из которых складывается вывод</h2>
+  <p class="hint">Факел доказывает, что газ горит, а не что завод работает:
+  так же горит продувка перед ремонтом и пусконаладка. Производство
+  доказывает отгрузка. А завоз грузов без отгрузки — это восстановление.</p>
+  <div class="sig">
+<div class="sigbox"><div class="k">Тепловая активность</div><div class="v">есть</div><div class="d">горячих линий: 4</div></div>
+<div class="sigbox"><div class="k">Отгрузки СПГ</div><div class="v">3</div><div class="d">12.5% от доконфликтной нормы</div></div>
+<div class="sigbox"><div class="k">Жидкие продукты</div><div class="v">1</div><div class="d">конденсат, СПБТ, GTL</div></div>
+<div class="sigbox"><div class="k">Завоз грузов</div><div class="v">2</div><div class="d">из них проектных: 2</div></div>
+<div class="sigbox"><div class="k">Мощность факелов</div><div class="v">219.3</div><div class="d">МВт, суммарно по VIIRS</div></div>
+</div>
+</section>
+
+<section class="card">
+  <h2>Статус линий сжижения</h2>
+  <p class="hint">Все зоны разобраны по одному снимку — снимок от 2026-10-25 (2 дн. назад), облачность 0.1% — и
+  поэтому сопоставимы между собой. Статус определяется по тепловой
+  сигнатуре в коротковолновом инфракрасном канале, индексу выгорания и
+  изменению облика площадки относительно опорного снимка
+  2026-02-22, сделанного до
+  остановки производства.</p>
+  <table><thead><tr><th>Линия</th><th class="hide-s">Венчур</th><th class="num hide-s">млн т/год</th><th>Статус и обоснование</th><th>Уверен.</th></tr></thead><tbody><tr><td><b>P-0</b></td><td class="hide-s">QE LNG South</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>работает</span><div class=ev>горячих пикселей: 12<br>тепловых точек VIIRS: 4<br>отгрузки СПГ по комплексу за 7 дн.: 3 — тепловой сигнал подтверждён вывозом продукта</div></td><td class="conf">высокая</td></tr><tr><td><b>P-1</b></td><td class="hide-s">QE LNG South</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>работает</span><div class=ev>горячих пикселей: 12<br>тепловых точек VIIRS: 4<br>отгрузки СПГ по комплексу за 7 дн.: 3 — тепловой сигнал подтверждён вывозом продукта</div></td><td class="conf">высокая</td></tr><tr><td><b>P-2</b></td><td class="hide-s">QE LNG South</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>работает</span><div class=ev>горячих пикселей: 12<br>тепловых точек VIIRS: 4<br>отгрузки СПГ по комплексу за 7 дн.: 3 — тепловой сигнал подтверждён вывозом продукта</div></td><td class="conf">высокая</td></tr><tr class="locked"><td><b>P-3</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-4</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-5</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr></tbody></table>
+  <div class="gate"><b>Закрыто 3 из 6 линий</b><p>Полная версия: все линии комплекса, история по неделям, выгрузка в CSV и оповещение при смене статуса.</p><form action="mailto:7989347@gmail.com" method="GET" enctype="text/plain"><input type="hidden" name="subject" value="Ras Laffan monitor"><input type="email" name="body" required placeholder="рабочая почта"><button class="btn" type="submit">Получить полный отчёт</button></form><p class="hint" style="margin-top:10px;text-align:center">или сразу <a href="https://calendly.com/7989347/30min">выбрать время разговора</a> &middot; <a href="mailto:7989347@gmail.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81">7989347@gmail.com</a></p></div>
+</section>
+
+<section class="card">
+  <h2>Снимки областей наблюдения</h2>
+  <p class="hint">Суда считаются прямо по снимку: вода поглощает ближний
+  инфракрасный свет и выглядит почти чёрной, а палуба отражает — корпус
+  виден светлой чёрточкой на тёмной воде. Транспондер можно выключить,
+  со снимка судно не спрячешь. У каждой области своя дата съёмки: они
+  разнесены на тысячи километров и попадают в разные витки спутника.</p>
+  <div class="car"><div class="car-track" id="cartrack" tabindex="0" aria-label="Снимки областей наблюдения"><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="1 из 3: Ras Laffan"><img src="img/area_ras-laffan_2026-10-25_web.jpg" loading="lazy" alt="Снимок: Ras Laffan, 2026-10-25"><div class="car-cap"><b>Ras Laffan</b><span class="d">снимок 2026-10-25 · 2 дн. назад · облачность 0.1%</span></div><p class="hint" style="margin:4px 0 0">крупнейший в мире комплекс сжижения газа</p><div class="car-stat"><div><b>27</b>судов на снимке</div><div><b>9</b>крупных, от 200 м</div><div><b>10.1</b>метров в пикселе</div></div></div><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="2 из 3: Ормузский пролив"><img src="img/area_hormuz_2026-10-24_web.jpg" loading="lazy" alt="Снимок: Ормузский пролив, 2026-10-24"><div class="car-cap"><b>Ормузский пролив</b><span class="d">снимок 2026-10-24 · 3 дн. назад · облачность 4.2%</span></div><p class="hint" style="margin:4px 0 0">через него идёт весь катарский СПГ</p><div class="car-stat"><div><b>41</b>судов на снимке</div><div><b>31</b>крупных, от 200 м</div><div><b>32.4</b>метров в пикселе</div></div></div><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="3 из 3: Баб-эль-Мандеб"><div class="car-noimg">за 14 дн. нет снимков с облачностью ниже 20%</div><div class="car-cap"><b>Баб-эль-Мандеб</b><span class="d">снимок —</span></div><p class="hint" style="margin:4px 0 0">путь в Европу через Суэцкий канал</p></div></div><div class="car-nav"><button class="car-btn" type="button" data-step="-1">&larr; Назад</button><button class="car-btn" type="button" data-step="1">Вперёд &rarr;</button><div class="car-dots"><button class="car-dot" type="button" data-go="0" aria-label="Показать: Ras Laffan" aria-current=&quot;true&quot;></button><button class="car-dot" type="button" data-go="1" aria-label="Показать: Ормузский пролив"></button><button class="car-dot" type="button" data-go="2" aria-label="Показать: Баб-эль-Мандеб"></button></div></div></div>
+</section>
+
+<section class="card">
+  <h2>Движение судов</h2>
+  <p class="hint">Данные AIS, который суда обязаны передавать по требованию
+  ИМО. Тип судна и тип причала вместе показывают, что именно происходит:
+  вывоз продукта или завоз оборудования.</p>
+  <p class="hint">У грузовых причалов сейчас пусто.</p>
+</section>
+
+<section class="card">
+  <h2>Признаки работ на берегу</h2>
+  <p class="hint">Площадка складирования модулей — прямой индикатор стройки:
+  при активных работах она заполняется блоками оборудования, появляются
+  новые покрытия и проезды.</p>
+  <table><thead><tr><th>Площадка</th><th class="hide-s">Что это</th><th class="num">Изменено</th><th>Вывод</th></tr></thead><tbody><tr><td><b>Laydown yard</b></td><td class="hide-s">площадка складирования модулей</td><td class="num">—</td><td>признаки работ</td></tr><tr><td><b>Tank farm</b></td><td class="hide-s">резервуарный парк — контроль</td><td class="num">—</td><td>без изменений</td></tr></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Суммарная мощность факелов по дням, МВт</h2>
+  <p class="hint">Прибор VIIRS измеряет мощность теплового излучения.
+  Рост означает увеличение сжигания газа, то есть рост загрузки.</p>
+  <div class="chart"><div class="bar" style="height:85.4%" data-tip="2026-10-23: 52.1 МВт" role="img" aria-label="2026-10-23: 52.1 мегаватт"></div><div class="bar" style="height:78.5%" data-tip="2026-10-24: 47.9 МВт" role="img" aria-label="2026-10-24: 47.9 мегаватт"></div><div class="bar" style="height:100.0%" data-tip="2026-10-25: 61 МВт" role="img" aria-label="2026-10-25: 61 мегаватт"></div><div class="bar" style="height:95.6%" data-tip="2026-10-26: 58.3 МВт" role="img" aria-label="2026-10-26: 58.3 мегаватт"></div></div><div class="axis"><span>2026-10-23</span><span>максимум 61 МВт</span><span>2026-10-26</span></div>
+</section>
+
+<section class="card">
+  <h2>Методика и честные ограничения</h2>
+  <div class="meth">
+    <p><b>Sentinel-2</b>, Евросоюз. Съёмка каждые 5 дней, 10 метров на
+    пиксель. Работающее оборудование и факел ярко светятся в канале B12
+    (2190 нм) — это позволяет различать линии по отдельности.</p>
+    <p><b>VIIRS</b>, NASA. Тепловые аномалии несколько раз в сутки с
+    измерением мощности в мегаваттах. Разрешение 375 м: отдельные линии
+    не разделяет, общий уровень сжигания показывает.</p>
+    <p><b>AIS</b>. Открытый эфир судовых транспондеров. Приходы, уходы,
+    длительность стоянки, заявленное направление.</p>
+    <p><b>Судно нельзя привязать к линии.</b> СПГ со всех линий поступает
+    в общие резервуары, оттуда на общие причалы. Связь теряется внутри
+    завода. Этого не делает никто, включая платные терминалы. Привязка
+    идёт до уровня причала и венчура.</p>
+    <p><b>Завоз не указывает объект.</b> На комплексе одновременно идут
+    ремонт линий, восстановление Barzan, ремонт Pearl GTL и стройка
+    расширения North Field East. Проектный груз может идти на любой
+    из них.</p>
+    <p><b>Грузовики со снимка не видны.</b> Фура занимает 1–2 пикселя.
+    Подвоз техники определяется по судам, работы на берегу — по
+    изменению облика площадок.</p>
+    <p><b>Осадка в AIS ненадёжна.</b> Поле заполняется экипажем вручную
+    и часто остаётся несвежим. Основной признак погрузки — длительность
+    стоянки у грузового причала.</p>
+    <p><b>Выводы автоматические.</b> Разрешение 10 м даёт гипотезу, а не
+    факт. У каждой линии указана уверенность; спорные случаи проверяются
+    по снимку глазами.</p>
+  </div>
+</section>
+
+<section class="card" style="text-align:center">
+  <h2>Нужен такой же монитор по вашему активу?</h2>
+  <p class="hint" style="margin:6px auto 18px">Тот же метод работает по
+  любому НПЗ, терминалу или заводу СПГ в мире: состояние объекта,
+  загрузка, отгрузки, признаки работ. Настройка под конкретный актив —
+  от нескольких дней.</p>
+  <form action="mailto:7989347@gmail.com" method="GET" enctype="text/plain"><input type="hidden" name="subject" value="Ras Laffan monitor"><input type="email" name="body" required placeholder="рабочая почта"><button class="btn" type="submit">Получить полный отчёт</button></form><p class="hint" style="margin-top:10px;text-align:center">или сразу <a href="https://calendly.com/7989347/30min">выбрать время разговора</a> &middot; <a href="mailto:7989347@gmail.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81">7989347@gmail.com</a></p>
+  <p class="hint" style="margin-top:18px">
+    <a class="btn ghost" href="https://calendly.com/7989347/30min">Поговорить 30 минут</a>
+  </p>
+</section>
+
+<footer>
+  <p>Gleb N. Zamyatin, MSc &middot; Fuels24 Inc &middot;
+  <a href="mailto:7989347@gmail.com">7989347@gmail.com</a>
+  &middot; <a href="https://linkedin.com/in/glebzamyatin">LinkedIn</a></p>
+  <p>Источники: Copernicus Sentinel-2, NASA FIRMS VIIRS, AIS.
+  Машиночитаемая версия: <a href="data.json">data.json</a>.
+  Это не инвестиционная рекомендация.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var k='rl-theme', b=document.getElementById('tg');
+  function cur(){
+    var s=localStorage.getItem(k);
+    if(s) return s;
+    return matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  }
+  function put(t){
+    document.documentElement.setAttribute('data-theme',t);
+    try{localStorage.setItem(k,t)}catch(e){}
+    b.textContent = t==='dark' ? 'Светлая тема' : 'Тёмная тема';
+  }
+  try{ put(cur()); }catch(e){}
+  b.addEventListener('click',function(){
+    put(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+  });
+})();
+
+/* Карусель снимков. Прокрутка нативная, скрипт только двигает её
+   кнопками и подсвечивает точку. Без скрипта карусель всё равно
+   листается пальцем и колесом — ничего не ломается. */
+(function(){
+  var t = document.getElementById('cartrack');
+  if(!t) return;
+  var slides = t.querySelectorAll('.car-slide');
+  var dots = document.querySelectorAll('.car-dot');
+  function cur(){ var w = t.clientWidth || 1; return Math.round(t.scrollLeft / w); }
+  function go(i){
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    if(slides[i]) t.scrollTo({left: slides[i].offsetLeft - t.offsetLeft,
+                              behavior:'smooth'});
+  }
+  function mark(){
+    var c = cur();
+    dots.forEach(function(d,i){
+      if(i===c) d.setAttribute('aria-current','true');
+      else d.removeAttribute('aria-current');
+    });
+  }
+  document.querySelectorAll('[data-step]').forEach(function(b){
+    b.addEventListener('click', function(){ go(cur() + parseInt(b.dataset.step,10)); });
+  });
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ go(parseInt(d.dataset.go,10)); });
+  });
+  t.addEventListener('scroll', function(){
+    clearTimeout(t._tm); t._tm = setTimeout(mark, 80);
+  });
+  t.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'){ e.preventDefault(); go(cur()+1); }
+    if(e.key==='ArrowLeft'){ e.preventDefault(); go(cur()-1); }
+  });
+  mark();
+})();
+</script>
+</body>
+</html>

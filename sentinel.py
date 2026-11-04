@@ -67,6 +67,12 @@ def get_token() -> str:
 # ---------------------------------------------------------------------------
 # Поиск доступных дат съёмки
 # ---------------------------------------------------------------------------
+# Пролёты, отброшенные последним вызовом find_scenes из-за облачности.
+# Нужны, чтобы отличить «спутник не пролетал» от «пролетал, но сквозь
+# облака»: на сайте это должны быть разные формулировки.
+LAST_REJECTED = []
+
+
 def find_scenes(bbox, date_from: str, date_to: str, max_cloud: int = None):
     """
     Возвращает список дат, в которые есть снимок нужной зоны
@@ -111,7 +117,7 @@ def find_scenes(bbox, date_from: str, date_to: str, max_cloud: int = None):
         raise RuntimeError("Каталог Copernicus не отвечает корректно. "
                            f"{last_err}")
 
-    scenes = []
+    scenes, dropped = [], {}
     for f in features:
         props = f.get("properties", {})
         stamp = props.get("datetime", "")[:10]
@@ -120,9 +126,23 @@ def find_scenes(bbox, date_from: str, date_to: str, max_cloud: int = None):
             cloud = props.get("cloudCover", 0)
         # отсеиваем облачные здесь, а не на сервере
         if cloud is not None and cloud >= max_cloud:
+            # Но запоминаем. Раньше отброшенные даты исчезали молча, и
+            # выходило неотличимо: спутник не пролетал — или пролетал,
+            # но сквозь облака. Для читателя это разные новости, а на
+            # сайте выглядело одинаково: «снимок 5 дней назад».
+            if stamp and (stamp not in dropped or cloud < dropped[stamp]):
+                dropped[stamp] = round(cloud, 1)
             continue
         if stamp:
             scenes.append({"date": stamp, "cloud": cloud or 0})
+
+    # Отброшенные кладём в модульную переменную, а не в возвращаемое
+    # значение: find_scenes вызывается из многих мест, и менять её
+    # подпись значило бы править их все.
+    LAST_REJECTED.clear()
+    LAST_REJECTED.extend(sorted(
+        ({"date": d, "cloud": c} for d, c in dropped.items()),
+        key=lambda x: x["date"], reverse=True))
     # убираем дубликаты дат, оставляя самый чистый снимок за день
     best = {}
     for s in scenes:
@@ -156,12 +176,34 @@ def latest_scene(bbox=None, days_back: int = 14, max_cloud: int = None):
 
     newest = scenes[0]
     age = (today - dt.date.fromisoformat(newest["date"])).days
+
+    # Пролёты СВЕЖЕЕ выбранного, забракованные облачностью. Именно они
+    # отвечают на вопрос «почему снимок не сегодняшний»: либо спутник
+    # ещё не пролетал, либо пролетал, но площадку закрыли облака.
+    newer_cloudy = [r for r in LAST_REJECTED if r["date"] > newest["date"]]
+
+    # Ожидаемый следующий пролёт. Sentinel-2 — два спутника на одной
+    # орбите, над Заливом пригодный пролёт выходит раз в несколько
+    # суток. Считаем по фактическим промежуткам, а не по справочнику:
+    # для конкретной рамки так честнее.
+    gaps = [(dt.date.fromisoformat(scenes[i]["date"])
+             - dt.date.fromisoformat(scenes[i + 1]["date"])).days
+            for i in range(min(len(scenes) - 1, 6))]
+    gaps = [g for g in gaps if g > 0]
+    typical = round(sum(gaps) / len(gaps)) if gaps else None
+    next_pass = ((dt.date.fromisoformat(newest["date"])
+                  + dt.timedelta(days=typical)).isoformat()
+                 if typical else None)
+
     return {
         "date": newest["date"],
         "cloud": round(newest.get("cloud") or 0, 1),
         "age_days": age,
         "prev_date": scenes[1]["date"] if len(scenes) > 1 else None,
         "available": [s["date"] for s in scenes],
+        "newer_cloudy": newer_cloudy,
+        "typical_gap_days": typical,
+        "next_pass_estimate": next_pass,
     }
 
 
@@ -296,10 +338,13 @@ def fetch_chip(bbox, date_from: str, date_to: str, out_path: str,
         raise RuntimeError(f"Copernicus вернул {resp.status_code}: "
                            f"{resp.text[:400]}")
 
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, "wb") as fh:
-        fh.write(resp.content)
-    return out_path
+    # Через save_safely: эти же файлы бот открывает пользователю, и
+    # открытый просмотрщик не должен ломать следующий запуск.
+    def _write(p):
+        with open(p, "wb") as fh:
+            fh.write(resp.content)
+
+    return save_safely(_write, out_path)
 
 
 # ---------------------------------------------------------------------------
@@ -385,5 +430,189 @@ def make_calibration_image(out_path: str = None) -> str:
     for name, meta in config.OTHER_SITES.items():
         box(meta["bbox"], (255, 255, 255), name)
 
-    img.save(out_path)
-    return out_path
+    return save_safely(img.save, out_path)
+
+
+# ---------------------------------------------------------------------------
+# Когда снимок реально появляется в каталоге
+# ---------------------------------------------------------------------------
+# Зачем это нужно. Расписание бота имеет смысл привязывать не к часам на
+# стене, а к моменту, когда данные становятся доступны. Спутник проходит
+# над Катаром примерно в 07:00 по Гринвичу, но продукт L2A выкладывается
+# не мгновенно: сначала приём на земле, потом обработка. Задержка
+# меняется, поэтому её не надо угадывать — её можно измерить.
+#
+# Открытый каталог Copernicus (OData) отдаёт для каждого продукта две
+# отметки времени: ContentDate/Start — момент съёмки, PublicationDate —
+# момент публикации. Их разность и есть задержка. Ключи не нужны.
+ODATA_URL = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products"
+
+
+# ---------------------------------------------------------------------------
+# Безопасная запись файла
+# ---------------------------------------------------------------------------
+def chip_size(bbox, long_side_px: int = 2048, max_px: int = 2500):
+    """
+    Размер картинки в пикселях, при котором пиксель КВАДРАТНЫЙ на местности.
+
+    Зачем. Рамка зоны задана в градусах, а градус долготы на широте
+    Катара короче градуса широты примерно в 1,2 раза. Если попросить
+    квадратную картинку на прямоугольной зоне, снимок растянется.
+
+    Для Ras Laffan это не мелочь: зона 18,5 на 12,2 км, а картинка
+    запрашивалась 2048 на 2048. Пиксель получался 9,0 м по горизонтали
+    и 5,9 м по вертикали — снимок растянут по вертикали в полтора раза,
+    и, что хуже, оценка длины судна по горизонтали завышала масштаб:
+    судно 300 м бот считал 197-метровым и мог отбросить как мелкое.
+
+    Проливы этой беды избежали случайно: их рамки почти квадратные
+    (0,90 и 0,98), поэтому ошибка там не бросалась в глаза.
+
+    Возвращает (ширина, высота) в пикселях.
+    """
+    import math
+    w, s, e, n = bbox
+    ground_w = (e - w) * 111320.0 * math.cos(math.radians((s + n) / 2.0))
+    ground_h = (n - s) * 110540.0
+    if ground_w <= 0 or ground_h <= 0:
+        return long_side_px, long_side_px
+
+    if ground_w >= ground_h:
+        width = long_side_px
+        height = max(16, int(round(long_side_px * ground_h / ground_w)))
+    else:
+        height = long_side_px
+        width = max(16, int(round(long_side_px * ground_w / ground_h)))
+
+    # Sentinel Hub не отдаёт картинку больше 2500 точек по стороне.
+    if max(width, height) > max_px:
+        k = max_px / float(max(width, height))
+        width, height = int(width * k), int(height * k)
+    return width, height
+
+
+def save_safely(save_fn, out_path: str) -> str:
+    """
+    Записывает файл так, чтобы открытая программа просмотра не мешала.
+
+    Зачем. На Windows файл, открытый в приложении «Фотографии», нельзя
+    перезаписать: система отказывает с ошибкой Invalid argument. А
+    открыт он ровно потому, что бот сам показал картинку после
+    прошлого запуска. Получается ловушка: посмотрел результат — и
+    следующий запуск падает.
+
+    Как обходим. Пишем во временный файл рядом, потом подменяем им
+    целевой одним движением. Если и подмена не прошла (файл держат
+    совсем крепко), сохраняем под именем со временем — пользователь
+    всё равно получает свежую картинку, а не ошибку.
+
+    save_fn — функция, принимающая путь: например img.save.
+    Возвращает путь, по которому файл реально оказался.
+    """
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+
+    # Расширение во временном имени сохраняем: PIL определяет формат
+    # картинки по нему, и файл с именем ".tmp" она записать не сможет.
+    base, ext = os.path.splitext(out_path)
+    tmp = f"{base}.tmp{ext}"
+    save_fn(tmp)
+
+    try:
+        os.replace(tmp, out_path)
+        return out_path
+    except OSError:
+        stamp = dt.datetime.now().strftime("%H%M%S")
+        alt = f"{base}_{stamp}{ext}"
+        try:
+            os.replace(tmp, alt)
+        except OSError:
+            return tmp
+        print(f"[!] Файл {os.path.basename(out_path)} занят другой "
+              f"программой — скорее всего, открыт в просмотрщике.")
+        print(f"    Сохранил рядом под именем {os.path.basename(alt)}.")
+        print(f"    Закройте окно просмотра, и имя снова станет обычным.")
+        return alt
+
+# Запасные значения на случай, если каталог недоступен. Это оценка, а не
+# измерение, и названа она так в выводе команды.
+FALLBACK_OVERPASS_UTC = 7.2      # около 07:10 по Гринвичу над Катаром
+FALLBACK_LAG_HOURS = 4.0         # типичная задержка выкладки L2A
+
+
+def _odata_products(bbox, days_back=20, top=12):
+    """Сырой список продуктов Sentinel-2 L2A по зоне за последние дни."""
+    west, south, east, north = bbox
+    since = (dt.datetime.now(dt.timezone.utc)
+             - dt.timedelta(days=days_back)).strftime("%Y-%m-%dT00:00:00.000Z")
+    poly = (f"POLYGON(({west} {south},{east} {south},{east} {north},"
+            f"{west} {north},{west} {south}))")
+    flt = ("Collection/Name eq 'SENTINEL-2' "
+           f"and OData.CSC.Intersects(area=geography'SRID=4326;{poly}') "
+           f"and ContentDate/Start gt {since} "
+           "and contains(Name,'MSIL2A')")
+    params = {"$filter": flt, "$top": str(top),
+              "$orderby": "ContentDate/Start desc",
+              "$select": "Name,ContentDate,PublicationDate"}
+    resp = requests.get(ODATA_URL, params=params, timeout=90)
+    resp.raise_for_status()
+    return resp.json().get("value", [])
+
+
+def publication_timing(bbox=None, days_back: int = 20) -> dict:
+    """
+    Измеряет, в какое время суток по Гринвичу снимок зоны появляется
+    в каталоге.
+
+    Возвращает:
+        overpass_utc_h   — среднее время съёмки, в часах от полуночи UTC
+        lag_h            — медианная задержка публикации, в часах
+        ready_utc_h      — когда данные готовы: съёмка + задержка
+        samples          — сколько продуктов удалось измерить
+        measured         — True, если это измерение, а не оценка
+        note             — что произошло, словами
+    """
+    bbox = bbox or config.RLIC_BBOX
+    try:
+        products = _odata_products(bbox, days_back=days_back)
+    except Exception as exc:                      # noqa: BLE001
+        return {"overpass_utc_h": FALLBACK_OVERPASS_UTC,
+                "lag_h": FALLBACK_LAG_HOURS,
+                "ready_utc_h": FALLBACK_OVERPASS_UTC + FALLBACK_LAG_HOURS,
+                "samples": 0, "measured": False,
+                "note": f"каталог не ответил ({str(exc)[:90]}), "
+                        f"взята типовая оценка"}
+
+    overpass, lags = [], []
+    for p in products:
+        try:
+            acq = dt.datetime.fromisoformat(
+                p["ContentDate"]["Start"].replace("Z", "+00:00"))
+            pub = dt.datetime.fromisoformat(
+                p["PublicationDate"].replace("Z", "+00:00"))
+        except (KeyError, TypeError, ValueError):
+            continue
+        lag = (pub - acq).total_seconds() / 3600.0
+        # Отсеиваем перевыпуски: продукт, опубликованный спустя неделю,
+        # это переобработка архива, а не обычная поставка.
+        if not (0 < lag < 48):
+            continue
+        overpass.append(acq.hour + acq.minute / 60.0)
+        lags.append(lag)
+
+    if not lags:
+        return {"overpass_utc_h": FALLBACK_OVERPASS_UTC,
+                "lag_h": FALLBACK_LAG_HOURS,
+                "ready_utc_h": FALLBACK_OVERPASS_UTC + FALLBACK_LAG_HOURS,
+                "samples": 0, "measured": False,
+                "note": "в каталоге нет пригодных отметок времени, "
+                        "взята типовая оценка"}
+
+    lags.sort()
+    mid = len(lags) // 2
+    lag_h = lags[mid] if len(lags) % 2 else (lags[mid - 1] + lags[mid]) / 2
+    over_h = sum(overpass) / len(overpass)
+    return {"overpass_utc_h": round(over_h, 2),
+            "lag_h": round(lag_h, 2),
+            "ready_utc_h": round(over_h + lag_h, 2),
+            "samples": len(lags), "measured": True,
+            "note": f"измерено по {len(lags)} снимкам за {days_back} дн."}

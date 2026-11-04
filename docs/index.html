@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ras Laffan LNG — монитор</title>
-<meta name="description" content="Статус линий сжижения Ras Laffan по снимкам
-Sentinel-2, тепловым данным VIIRS и трекингу судов AIS. Fuels24 Inc.">
-<meta property="og:title" content="Ras Laffan LNG — монитор состояния">
-<meta property="og:description" content="Какие линии работают, какие
-восстанавливают, сколько СПГ реально вывозят. По открытым данным.">
+<title>Ras Laffan — contractor activity monitor</title>
+<meta name="description" content="Where the contractor work will be: the Ras Laffan activity
+index from satellite imagery, vessels, press and mobilisation signals. Fuels24 Inc.">
+<meta property="og:title" content="Ras Laffan — where the contractor work will be">
+<meta property="og:description" content="Activity index, satellite imagery, vessels, tenders and
+contractor mobilisation signals. From open data.">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -60,7 +60,7 @@ h1{font-size:clamp(24px,4.2vw,36px); line-height:1.15; margin:18px 0 6px; font-w
 h2{font-size:17px; margin:0 0 4px; font-weight:620}
 .hint{color:var(--ink-muted); font-size:13px; margin:0 0 16px; max-width:72ch}
 
-/* шапка-вердикт */
+
 .verdict{display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start}
 .hero{flex:1 1 220px; min-width:200px}
 .hero .n{font-size:clamp(40px,8vw,60px); line-height:1; font-weight:680; letter-spacing:-.02em}
@@ -79,7 +79,7 @@ h2{font-size:17px; margin:0 0 4px; font-weight:620}
   color:var(--ink-2); font-size:13px;
 }
 
-/* матрица сигналов */
+
 .sig{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
 .sigbox{border:1px solid var(--ring); border-radius:9px; padding:13px; background:var(--plane)}
 .sigbox .k{color:var(--ink-muted); font-size:12px; text-transform:uppercase; letter-spacing:.05em}
@@ -93,8 +93,7 @@ th{
   padding:0 16px 8px 0; border-bottom:1px solid var(--grid);
 }
 td{padding:10px 16px 10px 0; border-bottom:1px solid var(--grid); vertical-align:top}
-/* Числовые колонки выравниваются вправо, но отступ справа сохраняется:
-   без него число слипается с соседней колонкой. */
+
 td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
 td:last-child,th:last-child{padding-right:0}
 tr:last-child td{border-bottom:none}
@@ -103,9 +102,14 @@ tr:last-child td{border-bottom:none}
 .ev{color:var(--ink-muted); font-size:12.5px; margin-top:4px}
 .conf{font-size:12px; color:var(--ink-muted); white-space:nowrap}
 
-/* закрытая часть */
+
 .locked td{color:var(--ink-muted)}
 .locked .mask{letter-spacing:.18em; user-select:none}
+
+.blur{
+  filter:blur(3.4px); color:var(--ink-2); letter-spacing:.1em;
+  user-select:none; white-space:nowrap;
+}
 .gate{
   margin-top:14px; padding:18px; border-radius:10px; text-align:center;
   border:1px dashed var(--axis); background:var(--plane);
@@ -113,7 +117,7 @@ tr:last-child td{border-bottom:none}
 .gate b{display:block; font-size:15px; margin-bottom:4px}
 .gate p{color:var(--ink-2); font-size:13.5px; margin:0 auto 14px; max-width:46ch}
 
-/* график */
+
 .chart{display:flex; align-items:flex-end; gap:2px; height:150px; margin-top:6px}
 .bar{
   flex:1 1 0; min-width:6px; background:var(--seq-450);
@@ -121,6 +125,12 @@ tr:last-child td{border-bottom:none}
   transition:background .12s;
 }
 .bar:hover{background:var(--seq-400)}
+
+.bar.gap{
+  height:6px; background:transparent; min-width:3px;
+  border-bottom:2px dotted var(--axis); border-radius:0;
+}
+.bar.gap:hover{background:transparent}
 .bar:hover::after{
   content:attr(data-tip); position:absolute; bottom:calc(100% + 7px); left:50%;
   transform:translateX(-50%); white-space:nowrap; z-index:5;
@@ -132,14 +142,15 @@ tr:last-child td{border-bottom:none}
   font-size:11.5px; margin-top:7px; border-top:1px solid var(--axis); padding-top:6px;
 }
 
-/* форма */
-form{display:flex; gap:8px; flex-wrap:wrap; justify-content:center}
-input[type=email]{
-  flex:1 1 230px; max-width:320px; padding:11px 13px; font:inherit;
-  border:1px solid var(--axis); border-radius:8px;
-  background:var(--surface); color:var(--ink);
+
+
+.cta-line{
+  margin:0; text-align:center; line-height:2;
+  font-size:1.02rem; color:var(--ink);
 }
-input[type=email]:focus{outline:2px solid var(--accent); outline-offset:1px}
+.cta-line a{
+  font-weight:600; white-space:nowrap; padding:2px 0;
+}
 .btn{
   padding:11px 20px; font:inherit; font-weight:600; cursor:pointer;
   border:none; border-radius:8px; background:var(--accent); color:#fff;
@@ -148,7 +159,11 @@ input[type=email]:focus{outline:2px solid var(--accent); outline-offset:1px}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent)}
 
-/* карусель снимков */
+
+
+.vid{width:100%; max-width:860px; margin:0 auto; display:block;
+  border-radius:10px; border:1px solid var(--axis); background:#000}
+
 .car{position:relative}
 .car-track{display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
   gap:14px; scroll-behavior:smooth; padding-bottom:4px;
@@ -181,7 +196,7 @@ input[type=email]:focus{outline:2px solid var(--accent); outline-offset:1px}
   background:var(--axis); cursor:pointer}
 .car-dot[aria-current="true"]{background:var(--accent)}
 
-.meth{columns:2 260px; column-gap:28px; font-size:13.5px; color:var(--ink-2)}
+.hbar{height:9px;border-radius:5px;background:var(--grid);overflow:hidden}.hbar i{display:block;height:100%;border-radius:5px}.hna{color:var(--ink-muted);font-size:12.5px}.meth{columns:2 260px; column-gap:28px; font-size:13.5px; color:var(--ink-2)}
 .meth p{margin:0 0 11px; break-inside:avoid}
 .meth b{color:var(--ink)}
 footer{
@@ -201,146 +216,199 @@ footer a{color:var(--accent)}
 </style>
 </head>
 <body>
-<button class="toggle" id="tg" type="button">Тёмная тема</button>
+<button class="toggle" id="tg" type="button">Dark theme</button>
 <div class="wrap">
 
 <header>
   <div class="brand">
     <b>Fuels24 Inc</b>
-    <span>Asset intelligence по открытым данным</span>
+    <span>Asset intelligence from open data</span>
   </div>
-  <h1>Ras Laffan LNG: что работает, что восстанавливают</h1>
-  <p class="sub">Крупнейший в мире комплекс сжижения газа после удара
-  в марте 2026. Состояние каждой линии — по трём независимым открытым
-  источникам, без инсайда и без подписки на платные терминалы.</p>
-  <p class="stamp">Обновлено 2026-10-27 11:03 UTC &middot; снимок от 2026-10-25 (2 дн. назад), облачность 0.1%</p>
+  <h1>Ras Laffan: where the contractor work will be</h1>
+  <p class="sub">The world's largest LNG complex is being rebuilt after the
+  March 2026 strike. Two liquefaction trains were hit, roughly 17% of export
+  capacity, and QatarEnergy's CEO has put the repair at three years. We
+  measure how close that work is — from satellite imagery, vessels, press and
+  mobilisation signals. No insider information, no paid terminals.</p>
+  <p class="stamp">Updated 2026-11-03 10:15 UTC &middot; image of 2026-11-01 (2 days ago), cloud 1.0%</p>
 </header>
 
 <section class="card">
+  <h2>Satellite imagery of the watch areas</h2>
+  <p class="hint">Vessels are counted on the image itself: water absorbs
+  near-infrared light and reads almost black, while a deck reflects it — a
+  hull shows as a bright dash on dark water. A transponder can be switched
+  off; a ship cannot hide from the image. Each area carries its own
+  acquisition date: they are thousands of kilometres apart and fall into
+  different satellite orbits.</p>
+  <div class="car"><div class="car-track" id="cartrack" tabindex="0" aria-label="Satellite images of the watch areas"><div class="car-slide" role="group" aria-roledescription="slide" aria-label="1 of 3: Ras Laffan"><img src="img/area_ras-laffan_2026-11-01_web.jpg" loading="lazy" alt="Satellite image: Ras Laffan, 2026-11-01"><div class="car-cap"><b>Ras Laffan</b><span class="d">image 2026-11-01 · 2 days ago · cloud 1.0%</span></div><p class="hint" style="margin:4px 0 0">the largest LNG liquefaction complex in the world</p><div class="car-stat"><div><b>2</b>under way or at anchor, in open water</div><div><b>3</b>alongside berths (counted separately, see Berths)</div><div><b>9.0</b>metres per pixel</div><div><b>36</b>metres: shortest vessel reliably seen</div></div><p class="hint" style="margin:6px 0 0">The two counts are different measurements, not two answers to one question. The open-water count needs water around a bright object and rejects blobs merged with structures, so a vessel moored against a jetty falls outside it by construction. Berths are read by a second method, against a baseline frame of the same berth. Neither number includes the other.</p><p class="hint" style="margin:6px 0 0">A vessel is a few bright pixels on dark water. At 9 m per pixel anything shorter than about 36 m is not counted reliably: tugs, pilot boats and barges come and go unseen. An LNG carrier is 290-345 m and is never missed, but length alone does not tell a carrier from a bulker — what the berth is for does.</p><p class="hint" style="margin:6px 0 0">None of this uses AIS. The count comes from the image, which is why it still works in a region where transponders are switched off or spoofed. The price of that independence: the image shows that a vessel is there, never its name, its cargo or which way the cargo is moving.</p><p class="hint" style="margin:6px 0 0">Why this date: a usable pass over this box comes about every 4 days; next one expected around 2026-11-05; no newer pass has been published yet.</p></div><div class="car-slide" role="group" aria-roledescription="slide" aria-label="2 of 3: Strait of Hormuz"><img src="img/area_hormuz_2026-10-26_web.jpg" loading="lazy" alt="Satellite image: Strait of Hormuz, 2026-10-26"><div class="car-cap"><b>Strait of Hormuz</b><span class="d">image 2026-10-26 · 8 days ago · cloud 14.9%</span></div><p class="hint" style="margin:4px 0 0">every Qatari LNG cargo passes through it</p><div class="car-stat"><div><b>8</b>under way or at anchor, in open water</div><div><b>32.4</b>metres per pixel</div><div><b>130</b>metres: shortest vessel reliably seen</div></div><p class="hint" style="margin:6px 0 0">A vessel is a few bright pixels on dark water. At 32.4 m per pixel anything shorter than about 130 m is not counted reliably: tugs, pilot boats and barges come and go unseen. An LNG carrier is 290-345 m and is never missed, but length alone does not tell a carrier from a bulker — what the berth is for does.</p><p class="hint" style="margin:6px 0 0">None of this uses AIS. The count comes from the image, which is why it still works in a region where transponders are switched off or spoofed. The price of that independence: the image shows that a vessel is there, never its name, its cargo or which way the cargo is moving.</p><p class="hint" style="margin:6px 0 0">Why this date: a usable pass over this box comes about every 2 days; next one expected around 2026-10-28; there were newer passes, but too cloudy to use: 2026-10-29 (48.4% cloud).</p></div><div class="car-slide" role="group" aria-roledescription="slide" aria-label="3 of 3: Bab-el-Mandeb"><div class="car-noimg">image unavailable</div><div class="car-cap"><b>Bab-el-Mandeb</b><span class="d">image 2026-10-31 · 3 days ago · cloud 0.1%</span></div><p class="hint" style="margin:4px 0 0">the route to Europe through the Suez Canal</p><div class="car-stat"><div><b>25</b>under way or at anchor, in open water</div><div><b>32.4</b>metres per pixel</div><div><b>130</b>metres: shortest vessel reliably seen</div></div><p class="hint" style="margin:6px 0 0">A vessel is a few bright pixels on dark water. At 32.4 m per pixel anything shorter than about 130 m is not counted reliably: tugs, pilot boats and barges come and go unseen. An LNG carrier is 290-345 m and is never missed, but length alone does not tell a carrier from a bulker — what the berth is for does.</p><p class="hint" style="margin:6px 0 0">None of this uses AIS. The count comes from the image, which is why it still works in a region where transponders are switched off or spoofed. The price of that independence: the image shows that a vessel is there, never its name, its cargo or which way the cargo is moving.</p><p class="hint" style="margin:6px 0 0">Why this date: a usable pass over this box comes about every 3 days; next one expected around 2026-11-03; no newer pass has been published yet.</p></div></div><div class="car-nav"><button class="car-btn" type="button" data-step="-1">&larr; Back</button><button class="car-btn" type="button" data-step="1">Next &rarr;</button><div class="car-dots"><button class="car-dot" type="button" data-go="0" aria-label="Show: Ras Laffan" aria-current=&quot;true&quot;></button><button class="car-dot" type="button" data-go="1" aria-label="Show: Strait of Hormuz"></button><button class="car-dot" type="button" data-go="2" aria-label="Show: Bab-el-Mandeb"></button></div></div></div>
+</section>
+
+<section class="card">
+  <h2>Flaring: total VIIRS power by day, MW</h2>
+  <p class="hint">The VIIRS instrument measures radiative power. A rise
+  means more gas being burned, which means higher throughput.</p>
+  <div class="chart"><div class="bar" style="height:57.0%" data-tip="2026-10-25: 184.1 MW" role="img" aria-label="2026-10-25: 184.1 megawatts"></div><div class="bar" style="height:14.2%" data-tip="2026-10-26: 46 MW" role="img" aria-label="2026-10-26: 46 megawatts"></div><div class="bar" style="height:46.9%" data-tip="2026-10-27: 151.5 MW" role="img" aria-label="2026-10-27: 151.5 megawatts"></div><div class="bar" style="height:30.2%" data-tip="2026-10-28: 97.4 MW" role="img" aria-label="2026-10-28: 97.4 megawatts"></div><div class="bar" style="height:34.0%" data-tip="2026-10-29: 109.9 MW" role="img" aria-label="2026-10-29: 109.9 megawatts"></div><div class="bar" style="height:51.7%" data-tip="2026-10-30: 167.1 MW" role="img" aria-label="2026-10-30: 167.1 megawatts"></div><div class="bar" style="height:100.0%" data-tip="2026-10-31: 322.9 MW" role="img" aria-label="2026-10-31: 322.9 megawatts"></div><div class="bar" style="height:69.6%" data-tip="2026-11-01: 224.8 MW" role="img" aria-label="2026-11-01: 224.8 megawatts"></div><div class="bar" style="height:36.9%" data-tip="2026-11-02: 119.2 MW" role="img" aria-label="2026-11-02: 119.2 megawatts"></div><div class="bar" style="height:3.0%" data-tip="2026-11-03: 0 MW" role="img" aria-label="2026-11-03: 0 megawatts"></div></div><div class="axis"><span>2026-10-25</span><span>peak 322.9 MW</span><span>2026-11-03</span></div><p class="hint" style="margin:6px 0 0">10 days measured, average 142 MW, peak 322.9 MW. The history is kept locally and grows with every run: VIIRS itself only serves the most recent days.</p>
+</section>
+
+<section class="card">
+  <h2>Berths: who is alongside</h2>
+  <p class="hint">First what the image shows, then what AIS says. The two
+  are independent, and in this region only the first can be trusted
+  unconditionally.</p>
+  <p class="hint" style="margin-top:4px"><b>From the image (independent of AIS).</b> Read from the satellite image itself: the deck of a moored vessel reflects near-infrared light, the water next to it does not. Static structures are removed by comparing with a baseline frame of the same berth. This works when AIS does not.</p><table><thead><tr><th>Berth</th><th>Cargo</th><th>On the image</th></tr></thead><tbody><tr><td><b>JET-1</b><div class="ev">North mole</div></td><td>lng</td><td><span class="st"><span class="ic" style="color:var(--status-good)">&#9679;</span>vessel alongside</span><div class="ev">7 559 m&sup2; of bright deck</div><div class="ev" style="color:var(--status-bad)">&#9888; the AI check disagrees — worth opening by eye (claude)</div></td></tr><tr><td><b>JET-2</b><div class="ev">North mole</div></td><td>lng</td><td><span class="st"><span class="ic" style="color:var(--status-good)">&#9679;</span>vessel alongside</span><div class="ev">2 567 m&sup2; of bright deck</div><div class="ev" style="color:var(--status-bad)">&#9888; the AI check disagrees — worth opening by eye (claude)</div></td></tr><tr><td><b>QUAY-E</b><div class="ev">construction</div></td><td>drycargo</td><td><span class="st"><span class="ic" style="color:var(--status-good)">&#9679;</span>vessel alongside</span><div class="ev">1 559 m&sup2; of bright deck</div></td></tr><tr><td><b>BAS-E</b><div class="ev">Inner basin</div></td><td>liquid</td><td><span class="conf">empty</span><div class="ev">confirmed by the AI check</div></td></tr><tr><td><b>BAS-S</b><div class="ev">Inner basin</div></td><td>liquid</td><td><span class="conf">empty</span></td></tr><tr><td><b>JET-3</b><div class="ev">North mole</div></td><td>lng</td><td><span class="conf">empty</span><div class="ev">confirmed by the AI check</div></td></tr><tr><td><b>JET-W</b><div class="ev">West mole</div></td><td>liquid</td><td><span class="conf">empty</span><div class="ev" style="color:var(--status-bad)">&#9888; the AI check disagrees — worth opening by eye (claude)</div></td></tr><tr><td><b>PIER-NE</b><div class="ev">North-east pier</div></td><td>liquid</td><td><span class="conf">empty</span></td></tr><tr><td><b>PIER-S</b><div class="ev">South pier</div></td><td>liquid</td><td><span class="conf">empty</span></td></tr><tr><td><b>QUAY-NE</b><div class="ev">construction</div></td><td>drycargo</td><td><span class="conf">empty</span></td></tr></tbody></table>
+  <div class="caveat" style="border-left-color:var(--status-serious)"><b>AIS data in the Gulf is unavailable or unreliable</b><br>Since February 2026 the Strait of Hormuz and the wider Gulf have seen sustained jamming and spoofing of satellite navigation. Ships broadcast false positions and strait transits that never happened, and maritime monitoring centres warn that navigation data in the area cannot be trusted. We therefore count vessels on the satellite image instead: an image cannot be spoofed.</div>
+  <p class="hint">The cargo berths are empty right now.</p>
+</section>
+
+<section class="card">
+  <h2>Capacity in service, and the verdict</h2>
   <div class="verdict">
     <div class="hero">
       <div class="n">83.3<small>%</small></div>
-      <div class="lbl">мощности в работе<br>
-        64 из
-        76.8 млн т/год</div>
+      <div class="lbl">capacity running<br>
+        64 of
+        76.8 mtpa</div>
     </div>
     <div class="vnote">
-      <span class="chip"><span class="dot" style="background:var(--status-warning)"></span>горит, но не вывозит</span>
-      <p style="margin:12px 0 0">тепло есть, отгрузок СПГ нет. Возможные причины: накопление в хранилище, факел пусконаладки или продувки перед ремонтом, либо экспорт заблокирован</p>
-      
+      <span class="chip"><span class="dot" style="background:var(--status-good)"></span>producing and exporting</span>
+      <p style="margin:12px 0 0">thermal activity confirmed by LNG loadings — two independent sources agree</p>
+      <div class="caveat">AIS collected no vessels at all — its figures are unknown, not zero. The verdict below rests on imagery.</div><div class="caveat">LNG carrier alongside on the image of 2026-11-01: JET-1, JET-2. A vessel at the berth proves it came to load; it does not prove it sailed loaded.</div><div class="caveat">Vessel at a dry cargo berth (QUAY-E) and the laydown area is filling (Laydown yard) — together that reads as equipment arriving.</div>
     </div>
   </div>
 </section>
 
 <section class="card">
-  <h2>Три сигнала, из которых складывается вывод</h2>
-  <p class="hint">Факел доказывает, что газ горит, а не что завод работает:
-  так же горит продувка перед ремонтом и пусконаладка. Производство
-  доказывает отгрузка. А завоз грузов без отгрузки — это восстановление.</p>
+  <h2>What this is, in 48 seconds</h2>
+  <video class="vid" controls preload="metadata" poster="img/poster.png"><source src="raslaffan_epc.mp4" type="video/mp4">Your browser cannot play this video. <a href="raslaffan_epc.mp4">Download it instead.</a></video>
+</section>
+
+<section class="card">
+  <h2>Contractor activity index</h2>
+  <p class="hint">One number answering one question: is this the moment to
+  engage. Every component and its weight is shown below — this is a weighted
+  sum, not a measurement, and you should see what it is made of.</p>
+  <div class="verdict"><div class="hero"><div class="n">19.2<small>/100</small></div><div class="lbl">activity index<br>low activity</div></div><div class="vnote"><span class="chip"><span class="dot" style="background:var(--status-good)"></span>the asset is steady, no new work in sight</span><p style="margin:12px 0 0">The index measures how close the work is, not how the owner is doing. It rises deliberately with idle capacity and inbound equipment: a plant running at full rate has nothing to offer a contractor.</p></div></div><table style="margin-top:18px"><thead><tr><th>Component</th><th class="num">Weight</th><th>Level</th><th class="num">Score</th></tr></thead><tbody><tr><td><b>Site works</b><div class="ev">inbound cargo, project cargo, dredgers, changes in the laydown yards</div></td><td class="num">40%</td><td style="width:38%"><div class="hbar"><i style="width:12%;background:var(--status-good)"></i></div></td><td class="num">12.5</td></tr><tr><td><b>Idle capacity</b><div class="ev">share of capacity out of service — the volume of restoration work ahead</div></td><td class="num">25%</td><td style="width:38%"><div class="hbar"><i style="width:17%;background:var(--status-good)"></i></div></td><td class="num">16.7</td></tr><tr><td><b>Press</b><div class="ev">tender and award mentions, tone of coverage</div></td><td class="num">20%</td><td style="width:38%"><div class="hbar"><i style="width:50%;background:var(--status-good)"></i></div></td><td class="num">50</td></tr><tr><td><b>Mobilisation</b><div class="ev">signs of large-scale hiring at the contractors</div></td><td class="num">15%</td><td style="width:38%"><div class="hbar"><i style="width:0%;background:var(--status-good)"></i></div></td><td class="num">0</td></tr></tbody></table><p class="hint" style="margin-top:12px">These readings are checked a second time, by a different method, at the end of the page.</p>
+</section>
+
+<section class="card">
+  <h2>The three signals behind the verdict</h2>
+  <p class="hint">A flare proves gas is burning, not that the plant is
+  producing: a pre-maintenance purge and commissioning burn the same way.
+  Production is proved by a loading. And cargo arriving with nothing leaving
+  means reconstruction.</p>
   <div class="sig">
-<div class="sigbox"><div class="k">Тепловая активность</div><div class="v">есть</div><div class="d">горячих линий: 5</div></div>
-<div class="sigbox"><div class="k">Отгрузки СПГ</div><div class="v">0</div><div class="d">0.0% от доконфликтной нормы</div></div>
-<div class="sigbox"><div class="k">Жидкие продукты</div><div class="v">0</div><div class="d">конденсат, СПБТ, GTL</div></div>
-<div class="sigbox"><div class="k">Завоз грузов</div><div class="v">0</div><div class="d">из них проектных: 0</div></div>
-<div class="sigbox"><div class="k">Мощность факелов</div><div class="v">230.1</div><div class="d">МВт, суммарно по VIIRS</div></div>
+<div class="sigbox"><div class="k">Thermal activity</div><div class="v">yes</div><div class="d">hot trains: 5</div></div>
+<div class="sigbox"><div class="k">LNG loadings</div><div class="v">unknown</div><div class="d">AIS not received, so loadings cannot be counted — a carrier is alongside on the image, but whether it loaded is not visible from one frame</div></div>
+<div class="sigbox"><div class="k">Liquid products</div><div class="v">unknown</div><div class="d">AIS not received</div></div>
+<div class="sigbox"><div class="k">At dry cargo berths</div><div class="v">1</div><div class="d">equipment arriving (yards filling)</div></div>
+<div class="sigbox"><div class="k">LNG carrier alongside</div><div class="v">2</div><div class="d">seen on the image, not via AIS</div></div>
+<div class="sigbox"><div class="k">Flare power</div><div class="v">1422.9</div><div class="d">MW, VIIRS total</div></div>
 </div>
 </section>
 
 <section class="card">
-  <h2>Статус линий сжижения</h2>
-  <p class="hint">Все зоны разобраны по одному снимку — снимок от 2026-10-25 (2 дн. назад), облачность 0.1% — и
-  поэтому сопоставимы между собой. Статус определяется по тепловой
-  сигнатуре в коротковолновом инфракрасном канале, индексу выгорания и
-  изменению облика площадки относительно опорного снимка
-  2026-02-22, сделанного до
-  остановки производства.</p>
-  <table><thead><tr><th>Линия</th><th class="hide-s">Венчур</th><th class="num hide-s">млн т/год</th><th>Статус и обоснование</th><th>Уверен.</th></tr></thead><tbody><tr><td><b>P-W1</b></td><td class="hide-s">запад (проверить)</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-serious)">◆</span>идут работы</span><div class=ev>изменено 49% площади без следов пожара</div></td><td class="conf">низкая</td></tr><tr><td><b>P-N1</b></td><td class="hide-s">QE LNG North</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>работает</span><div class=ev>тепловых точек VIIRS: 11<br>ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением</div></td><td class="conf">низкая</td></tr><tr><td><b>P-N2</b></td><td class="hide-s">QE LNG North</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>работает</span><div class=ev>горячих пикселей SWIR: 664<br>тепловых точек VIIRS: 15<br>ВНИМАНИЕ: за 7 дн. ни одной отгрузки СПГ по комплексу. Тепло может быть факелом ремонта или продувки, а не сжижением</div></td><td class="conf">низкая</td></tr><tr class="locked"><td><b>P-M1</b></td><td class="hide-s">центр комплекса</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-S1</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-S2</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr></tbody></table>
-  <div class="gate"><b>Закрыто 3 из 6 линий</b><p>Полная версия: все линии комплекса, история по неделям, выгрузка в CSV и оповещение при смене статуса.</p><form action="mailto:7989347@gmail.com" method="GET" enctype="text/plain"><input type="hidden" name="subject" value="Ras Laffan monitor"><input type="email" name="body" required placeholder="рабочая почта"><button class="btn" type="submit">Получить полный отчёт</button></form><p class="hint" style="margin-top:10px;text-align:center">или сразу <a href="https://calendly.com/7989347/30min">выбрать время разговора</a> &middot; <a href="mailto:7989347@gmail.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81">7989347@gmail.com</a></p></div>
+  <h2>Liquefaction train status</h2>
+  <p class="hint">Every zone is read from one single image — image of 2026-11-01 (2 days ago), cloud 1.0% —
+  so the zones are comparable with each other. Status comes from the thermal
+  signature in the short-wave infrared band, the burn index, and the change
+  in the site's appearance against the
+  2026-02-22 baseline image, taken
+  before production stopped.</p>
+  <table><thead><tr><th>Train</th><th class="hide-s">Venture</th><th class="num hide-s">mtpa</th><th>Status and evidence</th><th>Conf.</th></tr></thead><tbody><tr><td><b>P-W1</b></td><td class="hide-s">West (unverified)</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-serious)">◆</span>works under way</span><div class=ev>60% of the area changed, no burn signature</div></td><td class="conf">low</td></tr><tr><td><b>P-N1</b></td><td class="hide-s">QE LNG North</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>producing</span><div class=ev>VIIRS thermal hits: 60<br>LNG carrier alongside on the image: JET-1, JET-2 — the thermal signal is backed by a vessel at the berth, though a completed loading is not proven</div></td><td class="conf">high</td></tr><tr><td><b>P-N2</b></td><td class="hide-s">QE LNG North</td><td class="num hide-s">12.8</td><td><span class="st"><span class="ic" style="color:var(--status-good)">▲</span>producing</span><div class=ev>hot SWIR pixels: 388<br>VIIRS thermal hits: 86<br>LNG carrier alongside on the image: JET-1, JET-2 — the thermal signal is backed by a vessel at the berth, though a completed loading is not proven</div></td><td class="conf">high</td></tr><tr class="locked"><td><b>P-M1</b></td><td class="hide-s">Complex centre</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-S1</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr><tr class="locked"><td><b>P-S2</b></td><td class="hide-s">QE LNG South</td><td class="num mask hide-s">•••</td><td><span class="mask">••••••••</span></td><td class="conf mask">•••</td></tr></tbody></table>
+  <div class="gate"><b>3 of 6 trains locked</b><p>The full version: every train of the complex, week-by-week history, CSV export and an alert when a status changes.</p><p class="cta-line">Would you like to get the full report on Ras Laffan or other projects? <a href="https://calendly.com/7989347/30min">Book a call</a> &middot; <a href="mailto:z@fuels24.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20access%20request">z@fuels24.com</a> &middot; <a href="https://linkedin.com/in/glebzamyatin" rel="noopener">LinkedIn</a></p></div>
 </section>
 
 <section class="card">
-  <h2>Снимки областей наблюдения</h2>
-  <p class="hint">Суда считаются прямо по снимку: вода поглощает ближний
-  инфракрасный свет и выглядит почти чёрной, а палуба отражает — корпус
-  виден светлой чёрточкой на тёмной воде. Транспондер можно выключить,
-  со снимка судно не спрячешь. У каждой области своя дата съёмки: они
-  разнесены на тысячи километров и попадают в разные витки спутника.</p>
-  <div class="car"><div class="car-track" id="cartrack" tabindex="0" aria-label="Снимки областей наблюдения"><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="1 из 3: Ras Laffan"><img src="img/area_ras-laffan_2026-10-25_web.jpg" loading="lazy" alt="Снимок: Ras Laffan, 2026-10-25"><div class="car-cap"><b>Ras Laffan</b><span class="d">снимок 2026-10-25 · 2 дн. назад · облачность 0.1%</span></div><p class="hint" style="margin:4px 0 0">крупнейший в мире комплекс сжижения газа</p><div class="car-stat"><div><b>11</b>судов на снимке</div><div><b>5</b>крупных, от 200 м</div><div><b>5.9</b>метров в пикселе</div></div></div><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="2 из 3: Ормузский пролив"><img src="img/area_hormuz_2026-10-26_web.jpg" loading="lazy" alt="Снимок: Ормузский пролив, 2026-10-26"><div class="car-cap"><b>Ормузский пролив</b><span class="d">снимок 2026-10-26 · вчера · облачность 14.9%</span></div><p class="hint" style="margin:4px 0 0">через него идёт весь катарский СПГ</p><div class="car-stat"><div><b>18</b>судов на снимке</div><div><b>18</b>крупных, от 200 м</div><div><b>32.4</b>метров в пикселе</div></div></div><div class="car-slide" role="group" aria-roledescription="слайд" aria-label="3 из 3: Баб-эль-Мандеб"><img src="img/area_bab-el-mandeb_2026-10-21_web.jpg" loading="lazy" alt="Снимок: Баб-эль-Мандеб, 2026-10-21"><div class="car-cap"><b>Баб-эль-Мандеб</b><span class="d">снимок 2026-10-21 · 6 дн. назад · облачность 0.1%</span></div><p class="hint" style="margin:4px 0 0">путь в Европу через Суэцкий канал</p><div class="car-stat"><div><b>9</b>судов на снимке</div><div><b>9</b>крупных, от 200 м</div><div><b>32.4</b>метров в пикселе</div></div></div></div><div class="car-nav"><button class="car-btn" type="button" data-step="-1">&larr; Назад</button><button class="car-btn" type="button" data-step="1">Вперёд &rarr;</button><div class="car-dots"><button class="car-dot" type="button" data-go="0" aria-label="Показать: Ras Laffan" aria-current=&quot;true&quot;></button><button class="car-dot" type="button" data-go="1" aria-label="Показать: Ормузский пролив"></button><button class="car-dot" type="button" data-go="2" aria-label="Показать: Баб-эль-Мандеб"></button></div></div></div>
+  <h2>Latest news on the asset</h2>
+  <p class="hint">The image shows what is happening today. News and hiring
+  signals show what is planned for tomorrow: a tender notice appears weeks
+  before anything on the site changes. Every item carries its publication
+  date — nothing here is presented as fresher than it is.</p>
+  <div class="caveat">Nothing was published about the asset in the last 24 hours. Showing the most recent items from the past three months — each with its own date.</div><table><thead><tr><th>Asset in the news</th><th class="hide-s">Source</th><th class="num">Published</th></tr></thead><tbody><tr><td><a href="http://www.zerohedge.com/commodities/selling-gas-twice-venture-global-courts-qatar-while-plotting-160-billion-ai-power" target="_blank" rel="noopener">Selling Gas Twice : Venture Global Courts Qatar While Plotting A $160 Billion AI Power Empire</a></td><td class="hide-s">zerohedge.com</td><td class="num">2026-10-24</td></tr><tr><td><a href="https://peakoil.com/publicpolicy/qatar-deal-to-buy-u-s-natural-gas-shows-how-iran-war-has-redrawn-global-energy-markets" target="_blank" rel="noopener">Qatar deal to buy U . S . natural gas shows how Iran war has redrawn global energy markets  | Peak Oil News and Message Boards</a></td><td class="hide-s">peakoil.com</td><td class="num">2026-10-23</td></tr><tr><td><a href="https://oilprice.com/Company-News/QatarEnergy-Turns-to-Cheniere-for-US-LNG-as-Iran-War-Disrupts-Exports.html" target="_blank" rel="noopener">QatarEnergy Turns to Cheniere for U . S . LNG as Iran War Disrupts Exports</a></td><td class="hide-s">oilprice.com</td><td class="num">2026-10-22</td></tr><tr><td><a href="https://www.geo.tv/latest/687713-pakistan-receives-second-qatar-lng-cargo-in-october-aims-to-avoid-costly-spot-purchases" target="_blank" rel="noopener">Pakistan receives second Qatar LNG cargo in October , aims to avoid costly spot purchases</a></td><td class="hide-s">geo.tv</td><td class="num">2026-10-22</td></tr><tr><td><a href="http://thepeninsulaqatar.com/article/22/10/2026/qatar-strengthens-emergency-response-as-civil-defence-expands-centre-network" target="_blank" rel="noopener">Qatar strengthens emergency response as Civil Defence expands centre network</a></td><td class="hide-s">thepeninsulaqatar.com</td><td class="num">2026-10-22</td></tr><tr><td><a href="https://city.udn.com/2976/7272703?raid=7299419" target="_blank" rel="noopener">「 戰爭 」、「 反戰 」、 與 「 和平 」-- 開欄文 - 時事論壇</a></td><td class="hide-s">city.udn.com</td><td class="num">2026-10-21</td></tr><tr><td><a href="https://www.abc.net.au/news/2026-10-21/commercial-helium-yorke-peninsula-gold-hydrogen/107291760" target="_blank" rel="noopener">Commercial helium production planned for the Yorke Peninsula</a></td><td class="hide-s">abc.net.au</td><td class="num">2026-10-21</td></tr><tr><td><a href="https://www.aol.com/articles/4-dividend-raises-4-different-153042000.html" target="_blank" rel="noopener">4 Dividend Raises , 4 Different Risks . Which Stock Comes Out on Top ?</a></td><td class="hide-s">aol.com</td><td class="num">2026-10-20</td></tr><tr><td><a href="https://www.middle-east-online.com/en/qatar-plans-defence-production-hub-regional-partners" target="_blank" rel="noopener">Qatar plans defence production hub with regional partners</a></td><td class="hide-s">middle-east-online.com</td><td class="num">2026-10-20</td></tr><tr><td><a href="http://thepeninsulaqatar.com/article/20/10/2026/qatar-to-announce-new-regional-defence-partnership-and-hub" target="_blank" rel="noopener">Qatar to announce new regional defence partnership and hub | The Peninsula Qatar</a></td><td class="hide-s">thepeninsulaqatar.com</td><td class="num">2026-10-20</td></tr><tr><td><a href="https://peakoil.com/publicpolicy/qatar-warns-global-energy-shockwaves-from-iran-war-have-yet-to-peak" target="_blank" rel="noopener">Qatar warns global energy shockwaves from Iran war have yet to peak  | Peak Oil News and Message Boards</a></td><td class="hide-s">peakoil.com</td><td class="num">2026-10-20</td></tr><tr><td><a href="https://economictimes.indiatimes.com/news/defence/qatar-plans-local-defence-production/articleshow/135055415.cms" target="_blank" rel="noopener">Qatar plans local defence production</a></td><td class="hide-s">economictimes.indiatimes.com</td><td class="num">2026-10-19</td></tr></tbody></table>
 </section>
 
 <section class="card">
-  <h2>Движение судов</h2>
-  <p class="hint">Данные AIS, который суда обязаны передавать по требованию
-  ИМО. Тип судна и тип причала вместе показывают, что именно происходит:
-  вывоз продукта или завоз оборудования.</p>
-  <p class="hint">У грузовых причалов сейчас пусто.</p>
+  <h2>Contractors on this asset</h2>
+  <p class="hint">Who is confirmed on the work, and who shows an award or
+  hiring signal around it. Press mentions alone are not listed: a company
+  can appear in an industry round-up without ever approaching the site.</p>
+  <div class="verdict" style="display:block"><p style="margin:0 0 8px"><b>Technip Energies</b> — lead engineering contractor — mobilised a team on the Train 4 and 6 restoration (announced March 2026). Subcontract packages are split here.</p><p class="hint" style="margin:4px 0 0">Confirmed from the companies' own announcements, not inferred from press volume.</p></div>
 </section>
 
 <section class="card">
-  <h2>Признаки работ на берегу</h2>
-  <p class="hint">Площадка складирования модулей — прямой индикатор стройки:
-  при активных работах она заполняется блоками оборудования, появляются
-  новые покрытия и проезды.</p>
-  <table><thead><tr><th>Площадка</th><th class="hide-s">Что это</th><th class="num">Изменено</th><th>Вывод</th></tr></thead><tbody><tr><td><b>Tank farm</b></td><td class="hide-s">резервуарный парк — контроль работы алгоритма</td><td class="num">33%</td><td>признаки работ</td></tr><tr><td><b>Tank farm N</b></td><td class="hide-s">северный резервуарный парк — контроль</td><td class="num">40%</td><td>признаки работ</td></tr><tr><td><b>Laydown yard</b></td><td class="hide-s">площадка складирования модулей — индикатор стройки</td><td class="num">24%</td><td>признаки работ</td></tr><tr><td><b>Pearl GTL</b></td><td class="hide-s">предположительно завод GTL, требует проверки</td><td class="num">18%</td><td>без изменений</td></tr><tr><td><b>Barzan</b></td><td class="hide-s">предположительно Barzan, требует проверки</td><td class="num">26%</td><td>признаки работ</td></tr></tbody></table>
+  <h2>Who decides, and when to reach them</h2>
+  <p class="hint">Names and titles below are published by the companies
+  themselves and each row links to its source. What is masked is the approach
+  route: which official channel reaches that desk, in what order, and what
+  the supplier portal will ask for.</p>
+  <table><thead><tr><th>Who</th><th>Owns</th><th class="hide-s">When to engage</th><th>Route</th></tr></thead><tbody><tr><td><b>Saad Sherida Al-Kaabi</b><div class="ev">Minister of State for Energy Affairs; President &amp; CEO, QatarEnergy</div><div class="ev">QatarEnergy</div><div class="ev"><a href="https://www.qatarenergy.qa/en/whoweare/governance/" target="_blank" rel="noopener">source</a></div></td><td>final approval of capital projects and award decisions</td><td class="hide-s">not a cold-approach target — reached through the EPC or at ministerial level</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr><tr><td><b>Ahmad Helal Al-Mohannadi</b><div class="ev">Chief Executive Officer, QatarEnergy LNG</div><div class="ev">QatarEnergy LNG (operator of the Ras Laffan trains)</div><div class="ev"><a href="https://www.qatarenergylng.qa/AboutUs/CEOs-Message" target="_blank" rel="noopener">source</a></div></td><td>operating company: restart sequence, scope and acceptance</td><td class="hide-s">in post since 1 January 2026 — a new CEO reviews the supplier list, which is the moment to be on it</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr><tr><td><b>Arnaud Pieton</b><div class="ev">Chief Executive Officer, Technip Energies</div><div class="ev">Technip Energies — mobilised on the Train 4 and 6 restoration</div><div class="ev"><a href="https://www.ten.com/ (March 2026 Gulf situation update)" target="_blank" rel="noopener">source</a></div></td><td>package breakdown and subcontractor selection on the restoration scope</td><td class="hide-s">the real door for a subcontractor: now, while the packages are still being split</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr><tr><td><b>Head of Procurement &amp; Contracts, QatarEnergy LNG</b><div class="ev">name not published by the company</div><div class="ev">QatarEnergy LNG</div><div class="ev">role published in tender notices; name not disclosed</div></td><td>prequalification, tender packages, frame agreements</td><td class="hide-s">before the tender is announced — to make the invited list</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr><tr><td><b>Project Director, Trains 4 &amp; 6 restoration</b><div class="ev">name not published by the company</div><div class="ev">QatarEnergy LNG / Technip Energies interface</div><div class="ev">role inferred from the project structure; name not disclosed</div></td><td>schedule, quantities, acceptance of works</td><td class="hide-s">once the activity index passes 45</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr><tr><td><b>Vendor qualification &amp; HSE approval</b><div class="ev">name not published by the company</div><div class="ev">QatarEnergy LNG</div><div class="ev">supplier portal requirements</div></td><td>the contractor's right to be on site at all</td><td class="hide-s">in parallel with prequalification — it is the usual reason a bid is rejected before it is read</td><td class="blur" aria-label="approach route available on request">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</td></tr></tbody></table><div class="caveat">Names and titles are taken from the companies' own published pages, linked in each row. What is masked is the approach route — which official channel reaches that desk, in what order, and what the supplier portal asks for. We do not publish or sell personal contact details: no private email addresses, phone numbers or profile links appear in this product.</div>
 </section>
 
 <section class="card">
-  <h2>Суммарная мощность факелов по дням, МВт</h2>
-  <p class="hint">Прибор VIIRS измеряет мощность теплового излучения.
-  Рост означает увеличение сжигания газа, то есть рост загрузки.</p>
-  <div class="chart"><div class="bar" style="height:100.0%" data-tip="2026-10-25: 184.1 МВт" role="img" aria-label="2026-10-25: 184.1 мегаватт"></div><div class="bar" style="height:25.0%" data-tip="2026-10-26: 46 МВт" role="img" aria-label="2026-10-26: 46 мегаватт"></div></div><div class="axis"><span>2026-10-25</span><span>максимум 184.1 МВт</span><span>2026-10-26</span></div>
+  <h2>Signs of works onshore</h2>
+  <p class="hint">The module laydown yard is a direct construction
+  indicator: under active works it fills with equipment blocks, and new
+  hardstanding and haul roads appear.</p>
+  <table><thead><tr><th>Site</th><th class="hide-s">What it is</th><th class="num">Changed</th><th>Reading</th></tr></thead><tbody><tr><td><b>Tank farm</b></td><td class="hide-s">tank farm — control site for the algorithm</td><td class="num">83%</td><td>signs of works</td></tr><tr><td><b>Tank farm N</b></td><td class="hide-s">northern tank farm — control site</td><td class="num">26%</td><td>signs of works</td></tr><tr><td><b>Laydown yard</b></td><td class="hide-s">module laydown yard — direct indicator of construction</td><td class="num">44%</td><td>filling up — works</td></tr><tr><td><b>Pearl GTL</b></td><td class="hide-s">probably the GTL plant, unverified</td><td class="num">79%</td><td>emptying — material leaving</td></tr><tr><td><b>Barzan</b></td><td class="hide-s">mostly open ground on the image — zone unconfirmed</td><td class="num">21%</td><td>signs of works</td></tr><tr><td><b>West plants</b></td><td class="hide-s">large built-up area west of the LNG trains, operator not identified</td><td class="num">51%</td><td>emptying — material leaving</td></tr></tbody></table>
 </section>
 
 <section class="card">
-  <h2>Методика и честные ограничения</h2>
+  <h2>Method, and the limits we state openly</h2>
   <div class="meth">
-    <p><b>Sentinel-2</b>, Евросоюз. Съёмка каждые 5 дней, 10 метров на
-    пиксель. Работающее оборудование и факел ярко светятся в канале B12
-    (2190 нм) — это позволяет различать линии по отдельности.</p>
-    <p><b>VIIRS</b>, NASA. Тепловые аномалии несколько раз в сутки с
-    измерением мощности в мегаваттах. Разрешение 375 м: отдельные линии
-    не разделяет, общий уровень сжигания показывает.</p>
-    <p><b>AIS</b>. Открытый эфир судовых транспондеров. Приходы, уходы,
-    длительность стоянки, заявленное направление.</p>
-    <p><b>Судно нельзя привязать к линии.</b> СПГ со всех линий поступает
-    в общие резервуары, оттуда на общие причалы. Связь теряется внутри
-    завода. Этого не делает никто, включая платные терминалы. Привязка
-    идёт до уровня причала и венчура.</p>
-    <p><b>Завоз не указывает объект.</b> На комплексе одновременно идут
-    ремонт линий, восстановление Barzan, ремонт Pearl GTL и стройка
-    расширения North Field East. Проектный груз может идти на любой
-    из них.</p>
-    <p><b>Грузовики со снимка не видны.</b> Фура занимает 1–2 пикселя.
-    Подвоз техники определяется по судам, работы на берегу — по
-    изменению облика площадок.</p>
-    <p><b>Осадка в AIS ненадёжна.</b> Поле заполняется экипажем вручную
-    и часто остаётся несвежим. Основной признак погрузки — длительность
-    стоянки у грузового причала.</p>
-    <p><b>Выводы автоматические.</b> Разрешение 10 м даёт гипотезу, а не
-    факт. У каждой линии указана уверенность; спорные случаи проверяются
-    по снимку глазами.</p>
+    <p><b>Sentinel-2</b>, European Union. Imagery every 5 days at 10 metres
+    per pixel. Running equipment and flares glow brightly in band B12
+    (2190 nm), which is what allows individual trains to be told apart.</p>
+    <p><b>VIIRS</b>, NASA. Thermal anomalies several times a day with
+    radiative power in megawatts. At 375 m it cannot separate individual
+    trains, but it does show the overall level of flaring.</p>
+    <p><b>AIS</b>. The open broadcast from ship transponders: arrivals,
+    departures, time alongside, declared destination.</p>
+    <p><b>A vessel cannot be tied to a train.</b> LNG from every train goes
+    into shared storage and out over shared berths. The link is lost inside
+    the plant. Nobody does this, paid terminals included. The attribution
+    runs as far as berth and venture.</p>
+    <p><b>A ship at a quay does not show which way the cargo moves.</b>
+    Ras Laffan both receives project equipment and exports sulphur, and
+    demolition debris leaves the same quays. On the image all of these are
+    a hull alongside. We call it equipment arriving only when something
+    else says so: AIS arrival and departure records, or a laydown yard
+    that is visibly filling. Otherwise the direction is reported as
+    unknown.</p>
+    <p><b>Inbound cargo does not identify the project.</b> The train repair,
+    the Barzan restoration, Pearl GTL maintenance and the North Field East
+    expansion all run at once. Project cargo may belong to any of them.</p>
+    <p><b>Trucks are invisible on the image.</b> A lorry covers 1–2 pixels.
+    Equipment delivery is tracked by ship, and onshore work by the change in
+    the yards.</p>
+    <p><b>AIS draught is unreliable.</b> The field is filled in by hand and
+    is often stale. The primary loading signal is time alongside a cargo
+    berth.</p>
+    <p><b>The conclusions are automatic.</b> Ten-metre resolution gives a
+    hypothesis, not a fact. Each train carries a confidence level, and
+    disputed cases are checked against the image by eye.</p>
   </div>
 </section>
 
+<section class="card"><h2>Second opinion: is a vessel really there, are works really under way</h2><p class="hint">The same two questions asked twice, by two methods that fail differently. The code counts bright pixels: reliable, but blind to meaning — it cannot tell an LNG carrier from a barge. A vision model reads the scene but will invent detail. Neither overrides the other. Where they disagree, that zone is worth opening by eye. 6 checks via claude.</p><table><thead><tr><th>Object</th><th>What the code found</th><th>What the AI found</th><th>Verdict</th></tr></thead><tbody><tr><td><b>JET-1</b><div class="ev">berth</div></td><td>vessel (7559 m2 of bright deck)</td><td>no vessel<div class="ev">Only causeway-like jetties and dark water are visible; a small green object at the bottom edge is too ambiguous to identify as a moored ship.</div><div class="ev">claude · low confidence</div></td><td><span class="chip"><span class="dot" style="background:var(--status-critical)"></span>disagree</span></td></tr><tr><td><b>JET-2</b><div class="ev">berth</div></td><td>vessel (2567 m2 of bright deck)</td><td>no vessel<div class="ev">Only a curved bright quay edge with two arms and dotted lines (likely piles or pipelines) is visible, with no hull, superstructure, or ship shape on the dark wa</div><div class="ev">claude · medium confidence</div></td><td><span class="chip"><span class="dot" style="background:var(--status-critical)"></span>disagree</span></td></tr><tr><td><b>JET-W</b><div class="ev">berth</div></td><td>no vessel</td><td>vessel: unclear, direction unknown<div class="ev">An elongated greenish-white hull lies alongside the end of the narrow jetty at bottom centre, but it is cut off by the frame, and no loader, stockpile, or derri</div><div class="ev">claude · low confidence</div></td><td><span class="chip"><span class="dot" style="background:var(--status-critical)"></span>disagree</span></td></tr><tr><td><b>QUAY-E</b><div class="ev">berth</div></td><td>vessel (1559 m2 of bright deck)</td><td>no vessel<div class="ev">claude</div></td><td><span class="chip"><span class="dot" style="background:var(--ink-muted)"></span>not comparable</span></td></tr><tr><td><b>JET-3</b><div class="ev">berth</div></td><td>no vessel</td><td>no vessel<div class="ev">The image shows only bright causeway and pier outlines with dotted dolphin or pile lines against dark water, with no hull, superstructure, or cargo visible.</div><div class="ev">claude · medium confidence</div></td><td><span class="chip"><span class="dot" style="background:var(--status-good)"></span>agree</span></td></tr><tr><td><b>BAS-E</b><div class="ev">berth</div></td><td>no vessel</td><td>no vessel<div class="ev">The image shows a jetty with pipelines, walkways, and a red-and-white structure over dark water, but no ship hull or superstructure is visible.</div><div class="ev">claude · medium confidence</div></td><td><span class="chip"><span class="dot" style="background:var(--status-good)"></span>agree</span></td></tr></tbody></table></section>
+
 <section class="card" style="text-align:center">
-  <h2>Нужен такой же монитор по вашему активу?</h2>
-  <p class="hint" style="margin:6px auto 18px">Тот же метод работает по
-  любому НПЗ, терминалу или заводу СПГ в мире: состояние объекта,
-  загрузка, отгрузки, признаки работ. Настройка под конкретный актив —
-  от нескольких дней.</p>
-  <form action="mailto:7989347@gmail.com" method="GET" enctype="text/plain"><input type="hidden" name="subject" value="Ras Laffan monitor"><input type="email" name="body" required placeholder="рабочая почта"><button class="btn" type="submit">Получить полный отчёт</button></form><p class="hint" style="margin-top:10px;text-align:center">или сразу <a href="https://calendly.com/7989347/30min">выбрать время разговора</a> &middot; <a href="mailto:7989347@gmail.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81">7989347@gmail.com</a></p>
-  <p class="hint" style="margin-top:18px">
-    <a class="btn ghost" href="https://calendly.com/7989347/30min">Поговорить 30 минут</a>
-  </p>
+  <h2>Want the same monitor for your asset?</h2>
+  <p class="hint" style="margin:6px auto 18px">The same method works on any
+  refinery, terminal or LNG plant in the world: asset condition, throughput,
+  loadings, signs of works. Set-up for a specific asset takes days, not
+  months.</p>
+  <p class="cta-line">Would you like to get the full report on Ras Laffan or other projects? <a href="https://calendly.com/7989347/30min">Book a call</a> &middot; <a href="mailto:z@fuels24.com?subject=Ras%20Laffan%20monitor%20%E2%80%94%20access%20request">z@fuels24.com</a> &middot; <a href="https://linkedin.com/in/glebzamyatin" rel="noopener">LinkedIn</a></p>
 </section>
 
 <footer>
   <p>Gleb N. Zamyatin, MSc &middot; Fuels24 Inc &middot;
-  <a href="mailto:7989347@gmail.com">7989347@gmail.com</a>
+  <a href="mailto:z@fuels24.com">z@fuels24.com</a>
   &middot; <a href="https://linkedin.com/in/glebzamyatin">LinkedIn</a></p>
-  <p>Источники: Copernicus Sentinel-2, NASA FIRMS VIIRS, AIS.
-  Машиночитаемая версия: <a href="data.json">data.json</a>.
-  Это не инвестиционная рекомендация.</p>
+  <p>This page counts visits and measures which sections are read, how far the page is scrolled and where a visit ends. No cookies, no advertising networks, and nothing that identifies you personally.</p>
+  <p>Sources: Copernicus Sentinel-2, NASA FIRMS VIIRS, AIS, GDELT, SEC EDGAR.
+  Machine-readable version: <a href="data.json">data.json</a>.
+  This is not investment advice.</p>
 </footer>
 
 </div>
@@ -355,7 +423,7 @@ footer a{color:var(--accent)}
   function put(t){
     document.documentElement.setAttribute('data-theme',t);
     try{localStorage.setItem(k,t)}catch(e){}
-    b.textContent = t==='dark' ? 'Светлая тема' : 'Тёмная тема';
+    b.textContent = t==='dark' ? 'Light theme' : 'Dark theme';
   }
   try{ put(cur()); }catch(e){}
   b.addEventListener('click',function(){
@@ -363,9 +431,7 @@ footer a{color:var(--accent)}
   });
 })();
 
-/* Карусель снимков. Прокрутка нативная, скрипт только двигает её
-   кнопками и подсвечивает точку. Без скрипта карусель всё равно
-   листается пальцем и колесом — ничего не ломается. */
+
 (function(){
   var t = document.getElementById('cartrack');
   if(!t) return;
@@ -398,6 +464,177 @@ footer a{color:var(--accent)}
     if(e.key==='ArrowLeft'){ e.preventDefault(); go(cur()-1); }
   });
   mark();
+})();
+</script>
+<script>
+
+(function () {
+  var EP = "https://script.google.com/macros/s/AKfycbywt-ObBjHbsK0crmjndAvdpuwXiLwdbX4TF2WtT14HOlcDKYITFlS_MucY43bSOUA/exec";
+  if (!EP) { return; }
+  var SITE = "raslaffan";
+  var ORG_URL = "";
+
+  function rnd() {
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+  var sid;
+  try {
+    sid = sessionStorage.getItem("rl-sid");
+    if (!sid) { sid = rnd(); sessionStorage.setItem("rl-sid", sid); }
+  } catch (e) { sid = rnd(); }
+
+  var t0 = Date.now();
+  var maxScroll = 0;
+  var clicks = [];
+  var sections = [];
+  var current = null;
+  var since = 0;
+  var sent = false;
+
+  
+  var cards = document.querySelectorAll("section.card");
+  for (var i = 0; i < cards.length; i++) {
+    var h = cards[i].querySelector("h2");
+    sections.push({ el: cards[i], name: h ? h.textContent.trim().slice(0, 60)
+                                          : "section " + (i + 1),
+                    ms: 0, seen: false });
+  }
+
+  function switchTo(idx) {
+    var now = Date.now();
+    if (current !== null && since) { sections[current].ms += now - since; }
+    current = idx;
+    since = now;
+    if (idx !== null) { sections[idx].seen = true; }
+  }
+
+  
+  function atCentre() {
+    var mid = window.innerHeight / 2;
+    var best = null, bestDist = 1e9;
+    for (var i = 0; i < sections.length; i++) {
+      var r = sections[i].el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) { continue; }
+      var dist = (r.top <= mid && r.bottom >= mid)
+        ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
+      if (dist < bestDist) { bestDist = dist; best = i; }
+    }
+    return best;
+  }
+
+  setInterval(function () {
+    if (document.visibilityState === "hidden") { return; }
+    var idx = atCentre();
+    if (idx !== null && idx !== current) { switchTo(idx); }
+  }, 500);
+
+  window.addEventListener("scroll", function () {
+    var h = document.documentElement;
+    var total = h.scrollHeight - h.clientHeight;
+    if (total > 0) {
+      var pct = Math.round(((h.scrollTop || document.body.scrollTop) / total) * 100);
+      if (pct > maxScroll) { maxScroll = Math.min(100, pct); }
+    }
+  }, { passive: true });
+
+  
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest ? e.target.closest("a,button") : null;
+    if (!a) { return; }
+    var what = (a.getAttribute("href") || "") + " " + (a.textContent || "");
+    if (/calendly/i.test(what)) { clicks.push("book a call"); }
+    else if (/mailto:/i.test(what)) { clicks.push("email"); }
+    else if (/submit/i.test(a.type || "")) { clicks.push("form submit"); }
+  }, true);
+
+  function params() {
+    var out = {};
+    try {
+      var q = new URLSearchParams(location.search);
+      ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(
+        function (k) { if (q.get(k)) { out[k] = q.get(k).slice(0, 60); } });
+    } catch (e) {  }
+    return out;
+  }
+
+  function post(payload) {
+    payload.site = SITE;
+    payload.sid = sid;
+    var body = JSON.stringify(payload);
+    try {
+      
+      var blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
+      if (navigator.sendBeacon && navigator.sendBeacon(EP, blob)) { return; }
+    } catch (e) {  }
+    try {
+      fetch(EP, { method: "POST", body: body, keepalive: true,
+                  headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                  mode: "no-cors" });
+    } catch (e) {  }
+  }
+
+  var view = {
+    event: "view",
+    path: location.pathname,
+    ref: document.referrer ? document.referrer.slice(0, 200) : "",
+    lang: (navigator.language || "").slice(0, 12),
+    screen: (window.screen ? screen.width + "x" + screen.height : ""),
+    mobile: /Mobi|Android/i.test(navigator.userAgent) ? 1 : 0,
+    tz: ""
+  };
+  try { view.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; }
+  catch (e) {  }
+  var utm = params();
+  for (var key in utm) { if (utm.hasOwnProperty(key)) { view[key] = utm[key]; } }
+
+  
+  function go() {
+    post(view);
+    switchTo(0);
+  }
+  if (ORG_URL) {
+    try {
+      fetch(ORG_URL).then(function (r) { return r.json(); }).then(function (d) {
+        
+        var org = d.org || d.isp || "";
+        if (!org && (d.as_name || d.asn)) {
+          org = ((d.asn || "") + " " + (d.as_name || "")).trim();
+        }
+        view.org = org.toString().slice(0, 80);
+        view.country = (d.country || d.country_name || d.countryName || "")
+          .toString().slice(0, 40);
+        view.city = (d.city || d.cityName || "").toString().slice(0, 40);
+        go();
+      }).catch(go);
+      setTimeout(function () { if (!view.sentOnce) { view.sentOnce = 1; } }, 1500);
+    } catch (e) { go(); }
+  } else { go(); }
+
+  function finish() {
+    if (sent) { return; }
+    sent = true;
+    switchTo(current);
+    var read = [];
+    for (var i2 = 0; i2 < sections.length; i2++) {
+      if (sections[i2].ms > 900) {
+        read.push(sections[i2].name + ":" + Math.round(sections[i2].ms / 1000));
+      }
+    }
+    var last = current !== null ? sections[current].name : "";
+    post({
+      event: "exit",
+      seconds: Math.round((Date.now() - t0) / 1000),
+      scroll: maxScroll,
+      exit_section: last,
+      read: read.join(" | ").slice(0, 900),
+      clicks: clicks.join(",").slice(0, 120)
+    });
+  }
+
+  window.addEventListener("pagehide", finish);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") { finish(); }
+  });
 })();
 </script>
 </body>

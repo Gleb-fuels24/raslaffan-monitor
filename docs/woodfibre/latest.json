@@ -1,0 +1,461 @@
+{
+ "built": "2026-11-26 10:51 UTC",
+ "progress": {
+  "ok": true,
+  "passes": [
+   {
+    "date": "2026-07-21",
+    "cloud": 4.3
+   },
+   {
+    "date": "2026-08-12",
+    "cloud": 14.3
+   },
+   {
+    "date": "2026-08-25",
+    "cloud": 9.1
+   },
+   {
+    "date": "2026-09-06",
+    "cloud": 11.1
+   },
+   {
+    "date": "2026-09-21",
+    "cloud": 11.2
+   },
+   {
+    "date": "2026-10-11",
+    "cloud": 0.5
+   }
+  ],
+  "rejected": [
+   {
+    "date": "2026-11-25",
+    "cloud": 98.7
+   },
+   {
+    "date": "2026-11-23",
+    "cloud": 99.6
+   },
+   {
+    "date": "2026-11-20",
+    "cloud": 24.4
+   },
+   {
+    "date": "2026-11-17",
+    "cloud": 37.6
+   },
+   {
+    "date": "2026-11-15",
+    "cloud": 91.7
+   },
+   {
+    "date": "2026-11-13",
+    "cloud": 99.9
+   },
+   {
+    "date": "2026-11-10",
+    "cloud": 96.7
+   },
+   {
+    "date": "2026-11-08",
+    "cloud": 91.0
+   },
+   {
+    "date": "2026-11-05",
+    "cloud": 96.5
+   },
+   {
+    "date": "2026-11-03",
+    "cloud": 99.3
+   },
+   {
+    "date": "2026-10-31",
+    "cloud": 78.5
+   },
+   {
+    "date": "2026-10-29",
+    "cloud": 88.9
+   },
+   {
+    "date": "2026-10-28",
+    "cloud": 95.8
+   },
+   {
+    "date": "2026-10-26",
+    "cloud": 76.5
+   },
+   {
+    "date": "2026-10-24",
+    "cloud": 99.7
+   },
+   {
+    "date": "2026-10-21",
+    "cloud": 91.1
+   },
+   {
+    "date": "2026-10-19",
+    "cloud": 72.6
+   },
+   {
+    "date": "2026-10-16",
+    "cloud": 59.5
+   },
+   {
+    "date": "2026-10-14",
+    "cloud": 42.4
+   },
+   {
+    "date": "2026-10-09",
+    "cloud": 70.2
+   },
+   {
+    "date": "2026-10-08",
+    "cloud": 59.7
+   },
+   {
+    "date": "2026-10-06",
+    "cloud": 40.5
+   },
+   {
+    "date": "2026-10-04",
+    "cloud": 20.7
+   },
+   {
+    "date": "2026-10-01",
+    "cloud": 99.3
+   },
+   {
+    "date": "2026-09-29",
+    "cloud": 75.2
+   },
+   {
+    "date": "2026-09-26",
+    "cloud": 51.1
+   },
+   {
+    "date": "2026-09-24",
+    "cloud": 99.5
+   },
+   {
+    "date": "2026-09-19",
+    "cloud": 69.4
+   },
+   {
+    "date": "2026-09-14",
+    "cloud": 99.9
+   },
+   {
+    "date": "2026-09-11",
+    "cloud": 78.7
+   },
+   {
+    "date": "2026-09-09",
+    "cloud": 67.5
+   },
+   {
+    "date": "2026-09-04",
+    "cloud": 99.8
+   },
+   {
+    "date": "2026-09-01",
+    "cloud": 83.6
+   },
+   {
+    "date": "2026-08-30",
+    "cloud": 100.0
+   },
+   {
+    "date": "2026-08-29",
+    "cloud": 40.1
+   },
+   {
+    "date": "2026-08-27",
+    "cloud": 97.4
+   },
+   {
+    "date": "2026-08-22",
+    "cloud": 56.2
+   },
+   {
+    "date": "2026-08-15",
+    "cloud": 17.2
+   },
+   {
+    "date": "2026-08-10",
+    "cloud": 26.1
+   },
+   {
+    "date": "2026-08-09",
+    "cloud": 69.0
+   },
+   {
+    "date": "2026-08-02",
+    "cloud": 78.4
+   },
+   {
+    "date": "2026-07-31",
+    "cloud": 59.3
+   },
+   {
+    "date": "2026-07-28",
+    "cloud": 88.0
+   },
+   {
+    "date": "2026-07-26",
+    "cloud": 100.0
+   },
+   {
+    "date": "2026-07-23",
+    "cloud": 39.9
+   },
+   {
+    "date": "2026-07-18",
+    "cloud": 95.8
+   },
+   {
+    "date": "2026-07-16",
+    "cloud": 88.4
+   },
+   {
+    "date": "2026-07-13",
+    "cloud": 19.9
+   },
+   {
+    "date": "2026-07-11",
+    "cloud": 95.4
+   },
+   {
+    "date": "2026-07-10",
+    "cloud": 94.5
+   },
+   {
+    "date": "2026-07-08",
+    "cloud": 29.7
+   },
+   {
+    "date": "2026-07-06",
+    "cloud": 77.3
+   },
+   {
+    "date": "2026-07-03",
+    "cloud": 93.4
+   },
+   {
+    "date": "2026-07-01",
+    "cloud": 92.5
+   },
+   {
+    "date": "2026-06-28",
+    "cloud": 55.5
+   },
+   {
+    "date": "2026-06-26",
+    "cloud": 100.0
+   },
+   {
+    "date": "2026-06-23",
+    "cloud": 32.1
+   },
+   {
+    "date": "2026-06-21",
+    "cloud": 17.7
+   },
+   {
+    "date": "2026-06-16",
+    "cloud": 22.4
+   },
+   {
+    "date": "2026-06-11",
+    "cloud": 66.1
+   },
+   {
+    "date": "2026-06-08",
+    "cloud": 80.2
+   },
+   {
+    "date": "2026-06-06",
+    "cloud": 68.2
+   },
+   {
+    "date": "2026-06-03",
+    "cloud": 99.2
+   },
+   {
+    "date": "2026-05-29",
+    "cloud": 67.5
+   },
+   {
+    "date": "2026-05-27",
+    "cloud": 16.3
+   },
+   {
+    "date": "2026-05-24",
+    "cloud": 93.3
+   },
+   {
+    "date": "2026-05-22",
+    "cloud": 25.1
+   },
+   {
+    "date": "2026-05-19",
+    "cloud": 87.4
+   },
+   {
+    "date": "2026-05-17",
+    "cloud": 36.1
+   },
+   {
+    "date": "2026-05-14",
+    "cloud": 79.3
+   },
+   {
+    "date": "2026-05-12",
+    "cloud": 45.5
+   },
+   {
+    "date": "2026-05-11",
+    "cloud": 17.2
+   }
+  ],
+  "missing": [],
+  "zones": [
+   {
+    "name": "TERRACE",
+    "label": "Main terrace — former mill platform",
+    "series": [
+     66.0,
+     69.3,
+     65.0,
+     61.3,
+     62.1,
+     56.6
+    ],
+    "new_px": 1929,
+    "area_m2": 192900,
+    "delta": -9.4
+   },
+   {
+    "name": "EAST",
+    "label": "East arm — wharf and laydown",
+    "series": [
+     41.0,
+     33.8,
+     33.3,
+     33.6,
+     31.8,
+     28.6
+    ],
+    "new_px": 355,
+    "area_m2": 35500,
+    "delta": -12.4
+   },
+   {
+    "name": "SOUTH",
+    "label": "South yard",
+    "series": [
+     70.8,
+     73.8,
+     75.5,
+     65.8,
+     71.0,
+     68.8
+    ],
+    "new_px": 1065,
+    "area_m2": 106500,
+    "delta": -2.0
+   },
+   {
+    "name": "SHORE",
+    "label": "South-west shore and dock",
+    "series": [
+     66.8,
+     65.5,
+     68.2,
+     63.5,
+     62.8,
+     57.8
+    ],
+    "new_px": 234,
+    "area_m2": 23400,
+    "delta": -9.0
+   }
+  ],
+  "total_new_m2": 358300,
+  "gallery": "data\\reports\\wf_passes.png",
+  "progress_image": "data\\reports\\wf_progress.png",
+  "first": "2026-07-21",
+  "last": "2026-10-11"
+ },
+ "radar": {
+  "ok": true,
+  "latest": {
+   "date": "2026-11-15",
+   "orbit": "descending"
+  },
+  "pair": {
+   "date": "2026-11-03",
+   "orbit": "descending"
+  },
+  "no_pair_reason": null,
+  "zones": [
+   {
+    "name": "TERRACE",
+    "label": "Main terrace — former mill platform",
+    "vv_db": -2.4,
+    "bright_pct": 62.3,
+    "change_db": 0.9,
+    "new_bright_m2": 777000
+   },
+   {
+    "name": "EAST",
+    "label": "East arm — wharf and laydown",
+    "vv_db": -6.0,
+    "bright_pct": 38.4,
+    "change_db": 1.2,
+    "new_bright_m2": 119400
+   },
+   {
+    "name": "SOUTH",
+    "label": "South yard",
+    "vv_db": -3.4,
+    "bright_pct": 55.8,
+    "change_db": 1.2,
+    "new_bright_m2": 507100
+   },
+   {
+    "name": "SHORE",
+    "label": "South-west shore and dock",
+    "vv_db": -5.5,
+    "bright_pct": 35.0,
+    "change_db": 0.7,
+    "new_bright_m2": 129800
+   },
+   {
+    "name": "BERTH",
+    "label": "Water off the east arm",
+    "vv_db": -13.3,
+    "bright_pct": 16.9,
+    "change_db": 0.1,
+    "new_bright_m2": 164200
+   },
+   {
+    "name": "BOOMS",
+    "label": "Booms and barge water",
+    "vv_db": -15.5,
+    "bright_pct": 10.3,
+    "change_db": -0.3,
+    "new_bright_m2": 137800
+   },
+   {
+    "name": "SOUTHW",
+    "label": "Southern approach",
+    "vv_db": -13.5,
+    "bright_pct": 21.7,
+    "change_db": 3.4,
+    "new_bright_m2": 352100
+   }
+  ],
+  "image": "data\\reports\\wf_radar.png"
+ }
+}
